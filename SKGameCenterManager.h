@@ -16,8 +16,6 @@ extern NSString *const SKGameCenterManagerGameCenterConnectedNotification;
 #import <GameKit/GameKit.h>
 #import "SKKitDefines.h"
 
-@class RootViewController;
-
 @interface SKGameCenterManager : SKSingleton <GKLeaderboardViewControllerDelegate, GKAchievementViewControllerDelegate ,UIAlertViewDelegate>
 
 +(SKGameCenterManager *) sharedGameCenterManager;
@@ -32,20 +30,12 @@ extern NSString *const SKGameCenterManagerGameCenterConnectedNotification;
 
 -(void) doImmediatePromptForAuthentication;
 
-@property (nonatomic, readwrite, SK_PROP_WEAK) RootViewController *rootViewController;
 @property (nonatomic, readwrite, strong) GKLocalPlayer *localPlayer;
 @property (nonatomic, readwrite, copy) SKKitBlock holderBlock;
 #elif IS_Mac
-@interface FakeRootViewController : NSObject {
-	
-}
-- (void)addBannerAd;
-- (void)removeBannerAd;
 
-@end
 @interface SKGameCenterManager : NSObject {
 	BOOL didImmediatePromptForAuthentication;
-    FakeRootViewController *rootViewController;
 	SKKitBlock holderBlock;
 	id localPlayer;
 }
@@ -60,7 +50,6 @@ extern NSString *const SKGameCenterManagerGameCenterConnectedNotification;
 
 -(void) doImmediatePromptForAuthentication;
 
-@property (nonatomic, readwrite, assign) FakeRootViewController *rootViewController;
 @property (nonatomic, readwrite, retain) id localPlayer;
 @property (nonatomic, readwrite, copy) SKKitBlock holderBlock;
 #endif

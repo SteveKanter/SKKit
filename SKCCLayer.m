@@ -143,7 +143,7 @@
 
 //#if IS_iOS
 -(SKCCLayer *) weak {
-	OA_VAR_WEAK id weakSelf = self;
+	SK_VAR_WEAK id weakSelf = self;
 	return weakSelf;
 }
 //#endif

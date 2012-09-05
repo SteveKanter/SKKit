@@ -22,6 +22,9 @@
 }
 -(void) dealloc {
 	NSLog(@"Singleton Dealloc '%@'", NSStringFromClass([self class]));
+#if !__has_feature(objc_arc)
+	[super dealloc];
+#endif
 }
 
 @end
@@ -56,6 +59,9 @@ SK_MAKE_SINGLETON(SKSingletonManager, sharedSingletonManager)
 }
 -(void) dealloc {
 	NSLog(@"SingletonManagerDealloc '%@'", NSStringFromClass([self class]));
+#if !__has_feature(objc_arc)
+	[super dealloc];
+#endif
 }
 
 @end

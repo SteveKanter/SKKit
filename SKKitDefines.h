@@ -10,7 +10,7 @@
 #define OfficeAttacks_SKKitDefines_h
 
 
-#if __IPHONE_OS_VERSION_MIN_REQUIRED > __IPHONE_4_3
+#if __IPHONE_OS_VERSION_MIN_REQUIRED > __IPHONE_4_3 && __has_feature(objc_arc)
 	#define SK_PROP_WEAK weak
 	#define SK_VAR_WEAK __weak
 #else

@@ -7,7 +7,6 @@
 //
 
 #import "SKGameCenterManager.h"
-#import "RootViewController.h"
 
 NSString *const SKGameCenterManagerGameCenterConnectedNotification = @"SKGameCenterManagerGameCenterConnectedNotification";
 
@@ -16,7 +15,6 @@ NSString *const SKGameCenterManagerGameCenterConnectedNotification = @"SKGameCen
 @implementation SKGameCenterManager {
 	BOOL _didImmediatePromptForAuthentication;
 }
-@synthesize rootViewController=_rootViewController;
 @synthesize holderBlock=_holderBlock;
 @synthesize localPlayer=_localPlayer;
 
@@ -113,40 +111,30 @@ SK_MAKE_SINGLETON(SKGameCenterManager, sharedGameCenterManager)
 		leaderboard.category = board;
 		leaderboard.leaderboardDelegate = self;
 		leaderboard.timeScope = GKLeaderboardTimeScopeToday;
-		[[self rootViewController] presentModalViewController:leaderboard animated:YES];
+		[[(SKCCDirector *)[CCDirector sharedDirector] rootViewController] presentModalViewController:leaderboard animated:YES];
 	}];
 }
 -(void) leaderboardViewControllerDidFinish:(GKLeaderboardViewController *)viewController {
-	[[self rootViewController] dismissModalViewControllerAnimated:YES];
+	[[(SKCCDirector *)[CCDirector sharedDirector] rootViewController] dismissModalViewControllerAnimated:YES];
 }
 -(void) showAchievements {
 	[self doIfAuthenticatedElsePromptForAuthentication:^{
 		GKAchievementViewController *vc = [[GKAchievementViewController alloc] init];
 		vc.achievementDelegate = self;
-		[[self rootViewController] presentModalViewController:vc animated:YES];
+		[[(SKCCDirector *)[CCDirector sharedDirector] rootViewController] presentModalViewController:vc animated:YES];
 	}];
 }
 -(void) achievementViewControllerDidFinish:(GKAchievementViewController *)viewController {
-	[[self rootViewController] dismissModalViewControllerAnimated:YES];
+	[[(SKCCDirector *)[CCDirector sharedDirector] rootViewController] dismissModalViewControllerAnimated:YES];
 }
 -(void) dump {
 	self.holderBlock = nil;
 	self.localPlayer = nil;
-	self.rootViewController = nil;
 }
 #elif IS_Mac
 
-@implementation FakeRootViewController
--(void) addBannerAd {
-	
-}
--(void) removeBannerAd {
-	
-}
-@end
-
 @implementation SKGameCenterManager
-@synthesize rootViewController, localPlayer, holderBlock;
+@synthesize localPlayer, holderBlock;
 MAKE_SINGLETON(SKGameCenterManager, sharedGameCenterManager)
 
 -(id) init {
@@ -184,7 +172,6 @@ MAKE_SINGLETON(SKGameCenterManager, sharedGameCenterManager)
 -(void) dump {
 	self.holderBlock = nil;
 	self.localPlayer = nil;
-	self.rootViewController = nil;
 }
 #endif
 @end

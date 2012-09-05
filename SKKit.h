@@ -111,8 +111,9 @@ typedef void(^SKNotificationCenterBlock)(NSNotification *notification);
 #define RESOURCEFILE(__FILENAME__) ([NSString stringWithFormat:@"%@/%@", [[NSBundle mainBundle] resourcePath], __FILENAME__])
 #define DOCUMENTSFILE(__FILENAME__) ([NSString stringWithFormat:@"%@/%@", [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDirectory, YES) lastObject], __FILENAME__])
 
-
+#import "SKKitDefines.h"
 #import "SKPlatformUtilities.h"
+#import "SKCCDirector.h"
 #import "SKSingleton.h"
 #import "SKCCSprite.h"
 #import "SKCCLayer.h"

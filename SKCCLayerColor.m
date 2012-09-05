@@ -142,7 +142,7 @@
 }
 
 -(SKCCLayerColor *) weak {
-	OA_VAR_WEAK id weakSelf = self;
+	SK_VAR_WEAK id weakSelf = self;
 	return weakSelf;
 }
 -(void) removeObserver {
