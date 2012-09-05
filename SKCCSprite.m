@@ -71,7 +71,7 @@ SK_MAKE_SINGLETON(SKSpriteManager, sharedSpriteManager)
 	return self;
 }
 -(NSDictionary *) getConfigByFilename:(NSString *)filename {
-	NSDictionary *config = [configs_ objectForKey:filename];
+	NSDictionary *config = configs_[filename];
 	if(!config) {
 		NSString *file = filename;
 		if(![filename isAbsolutePath]) {
@@ -79,7 +79,7 @@ SK_MAKE_SINGLETON(SKSpriteManager, sharedSpriteManager)
 		}
 		config = [NSDictionary dictionaryWithContentsOfFile:file];
 		if(config) {
-			[configs_ setObject:config forKey:filename];
+			configs_[filename] = config;
 		}
 	}
 	return config;
@@ -231,18 +231,18 @@ SK_MAKE_SINGLETON(SKSpriteManager, sharedSpriteManager)
 	SKCCSprite *sprite = [[[self class] alloc] init];
 	[sprite setupConfigWithFilename:filename];
 	NSDictionary *config = [sprite config];
-	if([config objectForKey:@"spritesheetControlFile"]) {
-		NSString *controlFile = [[config objectForKey:@"spritesheetControlFile"] stringByAppendingPathExtension:@"plist"];
+	if(config[@"spritesheetControlFile"]) {
+		NSString *controlFile = [config[@"spritesheetControlFile"] stringByAppendingPathExtension:@"plist"];
 		[[CCSpriteFrameCache sharedSpriteFrameCache] addSpriteFramesWithFile:[self texturePackerAbsoluteFileFromControlFile:controlFile]];
-		[sprite setSpritesheetPrefix:[config objectForKey:@"spritesheetFramePrefix"]];
-		[sprite setupTextureFilenameWithFilename:[config objectForKey:@"spritesheetControlFile"]];
+		[sprite setSpritesheetPrefix:config[@"spritesheetFramePrefix"]];
+		[sprite setupTextureFilenameWithFilename:config[@"spritesheetControlFile"]];
 	}
 	return sprite;
 }
 +(id) spriteWithFirstFrameOfSpritesheetFromFile:(NSString *)filename {
 	SKCCSprite *sprite = [[self class] spriteWithFile:filename];
 	if(sprite.config) {
-		CGSize size = SKCGSizeMake([[[sprite config] objectForKey:@"spriteWidth"] intValue], [[[sprite config] objectForKey:@"spriteHeight"] intValue]);
+		CGSize size = SKCGSizeMake([[sprite config][@"spriteWidth"] intValue], [[sprite config][@"spriteHeight"] intValue]);
 		sprite.textureRect = CGRectMake(0, 0, size.width, size.height);
 	}
 	return sprite;
@@ -267,7 +267,7 @@ SK_MAKE_SINGLETON(SKSpriteManager, sharedSpriteManager)
 							 object:nil
 							  queue:nil
 						 usingBlock:^(NSNotification *notification) {
-							 float speed = [[[notification userInfo] objectForKey:@"animationSpeed"] floatValue];
+							 float speed = [[notification userInfo][@"animationSpeed"] floatValue];
 							 for(CCAction *action in _runningAnimationsBasedOnSpeed) {
 								 if((notification.object == nil || notification.object == action) && [action isKindOfClass:[CCSpeed class]]) {
 									 ((CCSpeed *)action).speed = speed;
@@ -407,11 +407,11 @@ SK_MAKE_SINGLETON(SKSpriteManager, sharedSpriteManager)
 }
 
 -(int) getSpriteSheetColumn:(int)frameNumber {
-	int numColumns = [[self.config objectForKey:@"numColumns"] intValue];
+	int numColumns = [(self.config)[@"numColumns"] intValue];
 	return frameNumber % numColumns;
 }
 -(int) getSpriteSheetRow:(int)frameNumber {
-	int numColumns = [[self.config objectForKey:@"numColumns"] intValue];
+	int numColumns = [(self.config)[@"numColumns"] intValue];
 	return ceil(frameNumber / numColumns);
 }
 -(NSString *) getRunningZeros:(int)lengthOfNumbers forNumber:(int)number {
@@ -423,19 +423,19 @@ SK_MAKE_SINGLETON(SKSpriteManager, sharedSpriteManager)
 }
 -(NSString *) getRandomAnimationKey {
 	NSArray *keys = [self allAnimationNames];
-	NSString *key = [keys objectAtIndex:RANDOM_INT(0,[keys count]-1)];
+	NSString *key = keys[RANDOM_INT(0,[keys count]-1)];
 	return key;
 }
 -(void) stopAllAnimations {
 	for(id key in [self runningAnimations]) {
-		CCAction *ac = [[self runningAnimations] objectForKey:key];
+		CCAction *ac = [self runningAnimations][key];
 		[self stopAction:ac];
 	}
 	[[self runningAnimations] removeAllObjects];
 	[_runningAnimationsBasedOnSpeed removeAllObjects];
 }
 -(void) stopAnimationByName:(NSString *)name {
-	CCAction *ac = [[self runningAnimations] objectForKey:name];
+	CCAction *ac = [self runningAnimations][name];
 	[self stopAction:ac];
 	[[self runningAnimations] removeObjectForKey:name];
 	if([_runningAnimationsBasedOnSpeed containsObject:ac]) {
@@ -444,7 +444,7 @@ SK_MAKE_SINGLETON(SKSpriteManager, sharedSpriteManager)
 }
 
 -(NSArray *) allAnimationNames {
-	return [[[self config] objectForKey:@"animations"] allKeys];
+	return [[self config][@"animations"] allKeys];
 }
 
 -(BOOL) containsAnimation:(NSString *)name {
@@ -452,18 +452,18 @@ SK_MAKE_SINGLETON(SKSpriteManager, sharedSpriteManager)
 }
 -(NSString *) animationNameForKey:(int)animationKey fromGroupWithKey:(int)animationGroupKey {
 	// get all the groups
-	NSDictionary *groups = [[self config] objectForKey:@"animationGroups"];
+	NSDictionary *groups = [self config][@"animationGroups"];
 	for(NSString *name in groups) {
-		NSDictionary *group = [groups objectForKey:name];
-		int groupKey = [[group objectForKey:@"groupKey"] intValue];
+		NSDictionary *group = groups[name];
+		int groupKey = [group[@"groupKey"] intValue];
 		// see if the group's key is the one we want
 		if(groupKey == animationGroupKey) {
-			NSDictionary *groupAnimations = [group objectForKey:@"animations"];
+			NSDictionary *groupAnimations = group[@"animations"];
 			for(NSString *animationKeyString in groupAnimations) {
 				int thisAnimationKey = [animationKeyString intValue];
 				// see if the group defines the name of the animation for this key
 				if(thisAnimationKey == animationKey) {
-					return [groupAnimations objectForKey:animationKeyString];
+					return groupAnimations[animationKeyString];
 				}
 			}
 		}
@@ -473,13 +473,13 @@ SK_MAKE_SINGLETON(SKSpriteManager, sharedSpriteManager)
 #endif
 	// since we got this far, the group we wanted either didn't exist, or the animation didn't exist in it. return an animation if possible
 	for(NSString *name in groups) {
-		NSDictionary *group = [groups objectForKey:name];
-		NSDictionary *groupAnimations = [group objectForKey:@"animations"];
+		NSDictionary *group = groups[name];
+		NSDictionary *groupAnimations = group[@"animations"];
 		for(NSString *animationKeyString in groupAnimations) {
 			int thisAnimationKey = [animationKeyString intValue];
 			// see if THIS group defines the name of the animation for this key
 			if(thisAnimationKey == animationKey) {
-				return [groupAnimations objectForKey:animationKeyString];
+				return groupAnimations[animationKeyString];
 			}
 		}
 	}	
@@ -490,10 +490,10 @@ SK_MAKE_SINGLETON(SKSpriteManager, sharedSpriteManager)
     NSDictionary *dict = [NSDictionary dictionaryWithContentsOfFile:path];
 	
     NSString *texturePath = nil;
-    NSDictionary *metadataDict = [dict objectForKey:@"metadata"];
+    NSDictionary *metadataDict = dict[@"metadata"];
     if( metadataDict )
         // try to read  texture file name from meta data
-        texturePath = [metadataDict objectForKey:@"textureFileName"];
+        texturePath = metadataDict[@"textureFileName"];
 	
 	
     if( texturePath ) {
@@ -536,7 +536,7 @@ SK_MAKE_SINGLETON(SKSpriteManager, sharedSpriteManager)
 	
 //	BOOL randomFrame = options & SKCCSpriteAnimationOptionsRandomStartingFrame;
 	self.lastUsedAnimation = name;
-	NSDictionary *animationData = [[[self config] objectForKey:@"animations"] objectForKey:name];
+	NSDictionary *animationData = [self config][@"animations"][name];
 	if(!animationData && block) {
 		[self runAction:[CCCallBlock actionWithBlock:block]];  //this way, we call the completion block but wait until the next run of the loop.  prevents the block being called before you're ready for it.
 		return;
@@ -548,18 +548,18 @@ SK_MAKE_SINGLETON(SKSpriteManager, sharedSpriteManager)
 	CCAnimation *animation = [[CCAnimationCache sharedAnimationCache] animationByName:animationName];
 	//NSLog(@"animation: %@", animationName);
 	
-	if(!animation && [animationData objectForKey:@"randomPreloadFrameRanges"]) {
+	if(!animation && animationData[@"randomPreloadFrameRanges"]) {
 		NSMutableDictionary *newAnimationData = [animationData mutableCopy];
-		NSDictionary *frameKeys = [animationData objectForKey:@"randomPreloadFrameRanges"];
-		NSString *key = [[frameKeys allKeys] objectAtIndex:RANDOM_INT(0, [frameKeys count] - 1)];
-		NSString *range = [frameKeys objectForKey:key];
-		[newAnimationData setObject:key forKey:@"preloadAnimationControlFile"];
-		[newAnimationData setObject:range forKey:@"frameRange"];
+		NSDictionary *frameKeys = animationData[@"randomPreloadFrameRanges"];
+		NSString *key = [frameKeys allKeys][RANDOM_INT(0, [frameKeys count] - 1)];
+		NSString *range = frameKeys[key];
+		newAnimationData[@"preloadAnimationControlFile"] = key;
+		newAnimationData[@"frameRange"] = range;
 		animationData = [newAnimationData copy];
 	}
 	
-	if(!animation && [animationData objectForKey:@"preloadAnimationControlFile"]) {
-		NSString *path = [[animationData objectForKey:@"preloadAnimationControlFile"] stringByAppendingPathExtension:@"plist"];
+	if(!animation && animationData[@"preloadAnimationControlFile"]) {
+		NSString *path = [animationData[@"preloadAnimationControlFile"] stringByAppendingPathExtension:@"plist"];
 		NSString *fullPath = [[self class] texturePackerAbsoluteFileFromControlFile:path];
 		NSString *currentPath = fullPath;
 #if IS_iOS
@@ -588,20 +588,20 @@ SK_MAKE_SINGLETON(SKSpriteManager, sharedSpriteManager)
 	
 	if(!animation) {
 		
-		NSMutableArray *frameIndexes = [animationData objectForKey:@"frames"];
+		NSMutableArray *frameIndexes = animationData[@"frames"];
 		
-		if([animationData objectForKey:@"frameRange"]) {
-			NSArray *array = [[animationData objectForKey:@"frameRange"] componentsSeparatedByString:@"-"];
+		if(animationData[@"frameRange"]) {
+			NSArray *array = [animationData[@"frameRange"] componentsSeparatedByString:@"-"];
 			if([array count] == 2) {
-				int startIndex = [[array objectAtIndex:0] intValue];
-				int endIndex = [[array objectAtIndex:1] intValue];
+				int startIndex = [array[0] intValue];
+				int endIndex = [array[1] intValue];
 				frameIndexes = [NSMutableArray arrayWithCapacity:endIndex - startIndex + 1];
 				for(int i = startIndex; i <= endIndex; i++) {
-					[frameIndexes addObject:[NSNumber numberWithInt:i]];
+					[frameIndexes addObject:@(i)];
 				}
 			} else if([array count] == 1) {
 				frameIndexes = [NSMutableArray arrayWithCapacity:1];
-				[frameIndexes addObject:[NSNumber numberWithInt:[[array objectAtIndex:0] intValue]]];
+				[frameIndexes addObject:@([array[0] intValue])];
 			}
 		}
 		
@@ -610,7 +610,7 @@ SK_MAKE_SINGLETON(SKSpriteManager, sharedSpriteManager)
 		if(!_spritesheetPrefix) { // not from texturepacker
 			CCSpriteBatchNode *spriteSheet = [CCSpriteBatchNode batchNodeWithTexture:texture_];
 			CCTexture2D *animationTexture = spriteSheet.textureAtlas.texture;
-			CGRect baseRect = SKCGRectMake(0,0, [[self.config objectForKey:@"spriteWidth"] intValue], [[self.config objectForKey:@"spriteHeight"] intValue]);
+			CGRect baseRect = SKCGRectMake(0,0, [(self.config)[@"spriteWidth"] intValue], [(self.config)[@"spriteHeight"] intValue]);
 			for(NSNumber *frameNumber in frameIndexes) {
 				CGRect frameRect = baseRect;
 				frameRect.origin.x = frameRect.size.width * [self getSpriteSheetColumn:([frameNumber intValue] - 1)];
@@ -626,7 +626,7 @@ SK_MAKE_SINGLETON(SKSpriteManager, sharedSpriteManager)
 				}
 			}
 		}
-		animation = [CCAnimation animationWithSpriteFrames:frames delay:[[animationData objectForKey:@"timePerFrame"] floatValue]];
+		animation = [CCAnimation animationWithSpriteFrames:frames delay:[animationData[@"timePerFrame"] floatValue]];
 		animation.restoreOriginalFrame = restoreFrame;
 		//we don't wanna cross-contaminate "walk" animations, for example.
 		//specific to the sprite "type" [name] and animation name.
@@ -635,7 +635,7 @@ SK_MAKE_SINGLETON(SKSpriteManager, sharedSpriteManager)
 		[[CCAnimationCache sharedAnimationCache] addAnimation:animation name:animationName];
 	}
 	id finalAnimation;
-	int repeat = [[animationData objectForKey:@"repeat"] intValue];
+	int repeat = [animationData[@"repeat"] intValue];
 	
 	CCAnimate *animate = [CCAnimate actionWithAnimation:animation];
 	
@@ -651,28 +651,28 @@ SK_MAKE_SINGLETON(SKSpriteManager, sharedSpriteManager)
 	} else {
 		finalAnimation = [CCRepeat actionWithAction:animate times:repeat];
 	}
-	if([animationData objectForKey:@"sound"]) {
+	if(animationData[@"sound"]) {
 //		[[SKAudioManager sharedAudioManager] playSoundFile:[animationData objectForKey:@"sound"]];
 	}
-	if([animationData objectForKey:@"translations"]) {
-		NSDictionary *translationData = [animationData objectForKey:@"translations"];
+	if(animationData[@"translations"]) {
+		NSDictionary *translationData = animationData[@"translations"];
 		for(NSString *translationKey in translationData) {
-			NSDictionary *translation = [translationData objectForKey:translationKey];
-			id translationAction = [CCScaleTo actionWithDuration: [[translation objectForKey:@"time"] floatValue]
-														   scale: [[translation objectForKey:@"scaleTo"] floatValue]];
+			NSDictionary *translation = translationData[translationKey];
+			id translationAction = [CCScaleTo actionWithDuration: [translation[@"time"] floatValue]
+														   scale: [translation[@"scaleTo"] floatValue]];
 			if([translationKey isEqual:@"scale"]) {
 				finalAnimation = [CCSpawn actions:finalAnimation, translationAction, nil];
 			}
 			// add more "translation"s here if/as needed.
 		}
 	}
-	BOOL hasANextAnimationAndShouldntCallBlockOurselves = ([animationData objectForKey:@"nextAnimation"]) && (options & SKCCSpriteAnimationOptionsPassCompletedBlockOn);
+	BOOL hasANextAnimationAndShouldntCallBlockOurselves = (animationData[@"nextAnimation"]) && (options & SKCCSpriteAnimationOptionsPassCompletedBlockOn);
 	if(block &&
 	   ![finalAnimation isKindOfClass:[CCRepeatForever class]] &&
 	   !hasANextAnimationAndShouldntCallBlockOurselves) { // can't sequence actions that never end.
 		finalAnimation = [CCSequence actions:finalAnimation, [CCCallBlock actionWithBlock:block], nil];
 	}
-	if(![finalAnimation isKindOfClass:[CCRepeatForever class]] && [animationData objectForKey:@"nextAnimation"]) {
+	if(![finalAnimation isKindOfClass:[CCRepeatForever class]] && animationData[@"nextAnimation"]) {
 		SKKitBlock completionBlock = nil;
 		if((options & SKCCSpriteAnimationOptionsPassCompletedBlockOn)) {
 			completionBlock = block;
@@ -680,7 +680,7 @@ SK_MAKE_SINGLETON(SKSpriteManager, sharedSpriteManager)
 		}
 		finalAnimation = [CCSequence actionOne:finalAnimation
 										   two:[CCCallBlock actionWithBlock:^{
-				[self runAnimation:[animationData objectForKey:@"nextAnimation"]
+				[self runAnimation:animationData[@"nextAnimation"]
 				   completionBlock:completionBlock
 						   options:options];
 		}]];
@@ -695,7 +695,7 @@ SK_MAKE_SINGLETON(SKSpriteManager, sharedSpriteManager)
 	}
 	
 	[self stopAnimationByName:name];
-	[[self runningAnimations] setObject:finalAnimation forKey:name];
+	[self runningAnimations][name] = finalAnimation;
 	[self runAction:finalAnimation];
 	[animate update:0]; //to prevent flicker
 }

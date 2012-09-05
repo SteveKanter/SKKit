@@ -126,8 +126,8 @@ SK_MAKE_SINGLETON(SKUtilities, sharedUtilities)
 	while (index < numberOfWords) {
 		NSMutableString *line = [NSMutableString stringWithCapacity:1];
 		while ((([line length] + lengthOfNextWord + 1) <= maxLength) && (index < numberOfWords)) {
-	        lengthOfNextWord = [[wordArray objectAtIndex:index] length];
-	        [line appendString:[wordArray objectAtIndex:index]];
+	        lengthOfNextWord = [wordArray[index] length];
+	        [line appendString:wordArray[index]];
 	        index++;
 			if (index < numberOfWords) {
 				[line appendString:@" "];

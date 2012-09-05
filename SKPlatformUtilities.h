@@ -40,8 +40,6 @@ NSString *SKFileFromTexturePack(NSString *file, NSString *pack);
 
 #define isIpadReturn(__ITEM__,__ELSE__) (isIpad() ? (__ITEM__) : (__ELSE__))
 #define isIpadReturnNumber(__ITEM__) isIpadReturn((__ITEM__),0)
-#define SKIntAsNumber(_int_) ([NSNumber numberWithInt:(_int_)])
-#define SKFloatAsNumber(_float_) ([NSNumber numberWithFloat:(_float_)])
 
 #if IS_Mac
 /** Additions to NSValue to make it work the same on OS X as it does iOS */

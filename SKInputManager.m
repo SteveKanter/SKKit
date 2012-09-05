@@ -49,7 +49,7 @@ SK_MAKE_SINGLETON(SKInputManager, sharedInputManager)
 	if(disableReSortingOfHandlers) return;
 	[self setSortedHandlers:[[self handlers] mutableCopy]];
 	NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"priority" ascending:NO];
-	[[self sortedHandlers] sortUsingDescriptors:[NSArray arrayWithObject:sortDescriptor]];
+	[[self sortedHandlers] sortUsingDescriptors:@[sortDescriptor]];
 }
 -(void) removeHandler:(id)node {
 	SKInputManagerHandler *handler = [self handlerObjectForNode:node];
@@ -108,7 +108,7 @@ SK_MAKE_SINGLETON(SKInputManager, sharedInputManager)
 }
 -(void) inputBegan:(id)input withEvent:(id)event {
 	int hash = [self getHashFromInput:input andEvent:event];
-	if(![[self claimedInput] objectForKey:SKIntAsNumber(hash)]) {
+	if(![self claimedInput][@(hash)]) {
 		for(SKInputManagerHandler *handler in [self sortedHandlers]) {
 			id object = [handler nodeObject];
 			BOOL theyWantTheTouch = NO;
@@ -122,7 +122,7 @@ SK_MAKE_SINGLETON(SKInputManager, sharedInputManager)
 			}
 #endif
 			if(theyWantTheTouch) {
-				[[self claimedInput] setObject:handler forKey:SKIntAsNumber(hash)];
+				[self claimedInput][@(hash)] = handler;
 				if(handler.inputBeganBlock) {
 					handler.inputBeganBlock(object, [self getInputObjectFromInput:input andEvent:event]);
 				}
@@ -133,7 +133,7 @@ SK_MAKE_SINGLETON(SKInputManager, sharedInputManager)
 }
 -(void) inputMoved:(id)input withEvent:(id)event {
 	int hash = [self getHashFromInput:input andEvent:event];
-	SKInputManagerHandler *handler = [[self claimedInput] objectForKey:SKIntAsNumber(hash)];
+	SKInputManagerHandler *handler = [self claimedInput][@(hash)];
 	if(handler) {
 		id object = [handler nodeObject];
 #if IS_iOS
@@ -152,7 +152,7 @@ SK_MAKE_SINGLETON(SKInputManager, sharedInputManager)
 }
 -(void) inputEnded:(id)input withEvent:(id)event {
 	int hash = [self getHashFromInput:input andEvent:event];
-	SKInputManagerHandler *handler = [[self claimedInput] objectForKey:SKIntAsNumber(hash)];
+	SKInputManagerHandler *handler = [self claimedInput][@(hash)];
 	if(handler) {
 		id object = [handler nodeObject];
 #if IS_iOS
@@ -167,12 +167,12 @@ SK_MAKE_SINGLETON(SKInputManager, sharedInputManager)
 		if(handler.inputEndedBlock) {
 			handler.inputEndedBlock(object, [self getInputObjectFromInput:input andEvent:event]);
 		}
-		[[self claimedInput] removeObjectForKey:SKIntAsNumber(hash)];
+		[[self claimedInput] removeObjectForKey:@(hash)];
 	}
 }
 -(void) inputCancelled:(id)input withEvent:(id)event {
 	int hash = [self getHashFromInput:input andEvent:event];
-	SKInputManagerHandler *handler = [[self claimedInput] objectForKey:SKIntAsNumber(hash)];
+	SKInputManagerHandler *handler = [self claimedInput][@(hash)];
 	if(handler) {
 		id object = [handler nodeObject];
 #if IS_iOS
@@ -187,7 +187,7 @@ SK_MAKE_SINGLETON(SKInputManager, sharedInputManager)
 		if(handler.inputCancelledBlock) {
 			handler.inputCancelledBlock(object, [self getInputObjectFromInput:input andEvent:event]);
 		}
-		[[self claimedInput] removeObjectForKey:SKIntAsNumber(hash)];
+		[[self claimedInput] removeObjectForKey:@(hash)];
 	}
 }
 -(void) mouseMovedWithEvent:(id)event {
