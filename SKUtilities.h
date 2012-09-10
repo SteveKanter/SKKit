@@ -8,6 +8,9 @@
 
 #import "SKSingleton.h"
 
+#if IS_Mac
+#import <CoreServices/CoreServices.h>
+#endif
 
 typedef struct _SKCircle {
 	CGPoint location;
@@ -51,6 +54,32 @@ NS_INLINE SKEllipse SKEllipseMake(CGPoint location, CGSize radius) {
 #define DECODE_BOOL_WITH_KEY(_iVarAndKey_) _##_iVarAndKey_ = [decoder decodeBoolForKey:@__KEY_INTO_STRING(_iVarAndKey_)]
 #define DECODE_FLOAT_WITH_KEY(_iVarAndKey_) _##_iVarAndKey_ = [decoder decodeFloatForKey:@__KEY_INTO_STRING(_iVarAndKey_)]
 #define DECODE_OBJECT_WITH_KEY(_iVarAndKey_) _##_iVarAndKey_ = [decoder decodeObjectForKey:@__KEY_INTO_STRING(_iVarAndKey_)]
+
+// from gist.github.com/953657 and adopted for OS X as well.
+
+#if IS_iOS
+	#define SYSTEM_VERSION_EQUAL_TO(v)                  ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] == NSOrderedSame)
+	#define SYSTEM_VERSION_GREATER_THAN(v)              ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] == NSOrderedDescending)
+	#define SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(v)  ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedAscending)
+	#define SYSTEM_VERSION_LESS_THAN(v)                 ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] == NSOrderedAscending)
+	#define SYSTEM_VERSION_LESS_THAN_OR_EQUAL_TO(v)     ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedDescending)
+#elif IS_Mac
+
+NSString *_osxVersion() {	
+	SInt32 major, minor, bugfix;
+	Gestalt(gestaltSystemVersionMajor, &major);
+	Gestalt(gestaltSystemVersionMinor, &minor);
+	Gestalt(gestaltSystemVersionBugFix, &bugfix);
+	
+	return [NSString stringWithFormat:@"%d.%d.%d", major, minor, bugfix];
+}
+
+	#define SYSTEM_VERSION_EQUAL_TO(v)                  ([_osxVersion() compare:v options:NSNumericSearch] == NSOrderedSame)
+	#define SYSTEM_VERSION_GREATER_THAN(v)              ([_osxVersion() compare:v options:NSNumericSearch] == NSOrderedDescending)
+	#define SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(v)  ([_osxVersion() compare:v options:NSNumericSearch] != NSOrderedAscending)
+	#define SYSTEM_VERSION_LESS_THAN(v)                 ([_osxVersion() compare:v options:NSNumericSearch] == NSOrderedAscending)
+	#define SYSTEM_VERSION_LESS_THAN_OR_EQUAL_TO(v)     ([_osxVersion() compare:v options:NSNumericSearch] != NSOrderedDescending)
+#endif
 
 /** SKUtilities is generally a singleton class.  It's designed to do random tasks that are easiest to perform on an object. */
 
