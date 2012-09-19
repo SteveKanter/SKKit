@@ -121,5 +121,6 @@ typedef void(^SKNotificationCenterBlock)(NSNotification *notification);
 #import "SKInputManager.h"
 #import "SKUtilities.h"
 #import "SKGameCenterManager.h"
+#import "SKServerSignature.h"
 
 #endif
