@@ -49,11 +49,16 @@ NS_INLINE SKEllipse SKEllipseMake(CGPoint location, CGSize radius) {
 														forKey:@__KEY_INTO_STRING(_iVarAndKey_)]
 #define ENCODE_OBJECT_WITH_KEY(_iVarAndKey_) [coder encodeObject:_##_iVarAndKey_\
 														  forKey:@__KEY_INTO_STRING(_iVarAndKey_)]
+#define ENCODE_UNSIGNED_LONGLONG_WITH_KEY(_iVarAndKey_) [coder encodeObject:[NSString stringWithFormat:@"%lli", _##_iVarAndKey_]\
+																	 forKey:@__KEY_INTO_STRING(_iVarAndKey_)]
 
 #define DECODE_INT_WITH_KEY(_iVarAndKey_) _##_iVarAndKey_ = [decoder decodeIntForKey:@__KEY_INTO_STRING(_iVarAndKey_)]
 #define DECODE_BOOL_WITH_KEY(_iVarAndKey_) _##_iVarAndKey_ = [decoder decodeBoolForKey:@__KEY_INTO_STRING(_iVarAndKey_)]
 #define DECODE_FLOAT_WITH_KEY(_iVarAndKey_) _##_iVarAndKey_ = [decoder decodeFloatForKey:@__KEY_INTO_STRING(_iVarAndKey_)]
 #define DECODE_OBJECT_WITH_KEY(_iVarAndKey_) _##_iVarAndKey_ = [decoder decodeObjectForKey:@__KEY_INTO_STRING(_iVarAndKey_)]
+#define DECODE_UNSIGNED_LONG_LONG_WITH_KEY(_iVarAndKey_) _##_iVarAndKey_ = [[decoder decodeObjectForKey:@__KEY_INTO_STRING(_iVarAndKey_)] unsignedLongLongValue]
+
+
 
 // from gist.github.com/953657 and adopted for OS X as well.
 

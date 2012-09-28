@@ -280,6 +280,7 @@ SK_MAKE_SINGLETON(SKSpriteManager, sharedSpriteManager)
 	_runningAnimationsBasedOnSpeed = nil;
 	[[SKInputManager sharedInputManager] removeHandler:self];
 	[self removeAllAsyncLoaders];
+	[self removeObserver];
 	[super onExit];
 }
 
