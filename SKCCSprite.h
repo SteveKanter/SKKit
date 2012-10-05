@@ -201,16 +201,6 @@ typedef enum {
 
 -(NSString *) animationNameForKey:(int)animationKey fromGroupWithKey:(int)animationGroupKey;
 
-
-/** Relative frame for a specific node - takes into account a lot of different info - could be a better way - hack for now.
- @param whom who to get the relative frame of */
--(CGRect) relativeFrameFor:(CCNode *)whom;
-/** Relative frame for a this node */
--(CGRect) relativeFrame;
-/** The frame for this node - uses it's childrens' relativeFrames. */
--(CGRect) frame;
-
-
 -(NSArray *) allChildrenInNodeTreeIncludingSelf:(BOOL)includeSelf;
 
 @end

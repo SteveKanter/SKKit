@@ -49,14 +49,14 @@ NS_INLINE SKEllipse SKEllipseMake(CGPoint location, CGSize radius) {
 														forKey:@__KEY_INTO_STRING(_iVarAndKey_)]
 #define ENCODE_OBJECT_WITH_KEY(_iVarAndKey_) [coder encodeObject:_##_iVarAndKey_\
 														  forKey:@__KEY_INTO_STRING(_iVarAndKey_)]
-#define ENCODE_UNSIGNED_LONGLONG_WITH_KEY(_iVarAndKey_) [coder encodeObject:[NSString stringWithFormat:@"%lli", _##_iVarAndKey_]\
+#define ENCODE_UNSIGNED_LONG_LONG_WITH_KEY(_iVarAndKey_) [coder encodeObject:[NSString stringWithFormat:@"%lli", _##_iVarAndKey_]\
 																	 forKey:@__KEY_INTO_STRING(_iVarAndKey_)]
 
 #define DECODE_INT_WITH_KEY(_iVarAndKey_) _##_iVarAndKey_ = [decoder decodeIntForKey:@__KEY_INTO_STRING(_iVarAndKey_)]
 #define DECODE_BOOL_WITH_KEY(_iVarAndKey_) _##_iVarAndKey_ = [decoder decodeBoolForKey:@__KEY_INTO_STRING(_iVarAndKey_)]
 #define DECODE_FLOAT_WITH_KEY(_iVarAndKey_) _##_iVarAndKey_ = [decoder decodeFloatForKey:@__KEY_INTO_STRING(_iVarAndKey_)]
 #define DECODE_OBJECT_WITH_KEY(_iVarAndKey_) _##_iVarAndKey_ = [decoder decodeObjectForKey:@__KEY_INTO_STRING(_iVarAndKey_)]
-#define DECODE_UNSIGNED_LONG_LONG_WITH_KEY(_iVarAndKey_) _##_iVarAndKey_ = [[decoder decodeObjectForKey:@__KEY_INTO_STRING(_iVarAndKey_)] unsignedLongLongValue]
+#define DECODE_UNSIGNED_LONG_LONG_WITH_KEY(_iVarAndKey_) _##_iVarAndKey_ = strtoull([[decoder decodeObjectForKey:@__KEY_INTO_STRING(_iVarAndKey_)] UTF8String], NULL, 0)
 
 
 
@@ -158,6 +158,11 @@ NSString *_osxVersion() {
 
 /** Random convenience methods to be added to all cocos2d nodes. */
 @interface CCNode (SKKitUtilitiesAdditions)
+
+
+/** The frame for this node - uses it's childrens' relativeFrames. */
+-(CGRect) frame;
+
 /** Run the specified block after the provided delay.  Runs a sequence with a delay then CCCallBlock on the reciever.
  @param block block to be called
  @param delay delay to wait before calling block

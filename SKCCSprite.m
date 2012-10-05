@@ -747,40 +747,6 @@ SK_MAKE_SINGLETON(SKSpriteManager, sharedSpriteManager)
 //#endif
 
 
--(CGRect) relativeFrameFor:(CCNode *)whom {
-	CGPoint pos = [whom boundingBox].origin;
-	CCNode *obj = whom.parent;
-	float overallXScale = 1.0;
-	float overallYScale = 1.0;
-	while(obj && ![obj isKindOfClass:[CCLayer class]]) {
-		pos.x += obj.boundingBox.origin.x;
-		pos.y += obj.boundingBox.origin.y;
-		overallXScale *= obj.scaleX;
-		overallYScale *= obj.scaleY;
-		obj = obj.parent;
-		if(!obj) {obj = nil;}
-	}
-	overallXScale *= whom.scaleX;
-	overallYScale *= whom.scaleY;
-	return CGRectMake(pos.x * overallXScale, pos.y * overallYScale,
-					  [whom boundingBox].size.width * overallXScale, [whom boundingBox].size.height * overallYScale);
-}
-
--(CGRect) relativeFrame {
-	return [self relativeFrameFor:self];
-}
--(CGRect) frame {
-	CGRect finalFrame = [self relativeFrame];
-	for(id child in self.children) {
-		if([child respondsToSelector:@selector(relativeFrame)]) {
-			finalFrame = CGRectUnion(finalFrame, [(SKCCSprite *)child relativeFrame]);
-		} else if([child isKindOfClass:[CCNode class]]) {
-			finalFrame = CGRectUnion(finalFrame, [self relativeFrameFor:child]);
-		}
-	}
-	return finalFrame;
-}
-
 -(void) removeAsyncLoader:(SKSpriteAnimationAsyncLoader *)loader {
 	[_loaders removeObject:loader];
 }
