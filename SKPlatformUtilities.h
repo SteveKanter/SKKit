@@ -8,6 +8,7 @@
 
 BOOL isIpad();
 BOOL isRetina();
+BOOL is4InchDevice();
 CGFloat SKScaleForPlatform(CGFloat num);
 CGFloat SKScale(CGFloat num);
 CGPoint SKCGPointMake(CGFloat x, CGFloat y);

@@ -26,6 +26,7 @@ SK_MAKE_SINGLETON(SKUtilities, sharedUtilities)
 
 @synthesize isIpad;
 @synthesize isRetina;
+@synthesize is4InchDevice;
 
 -(id) init {
 	if( (self = [super init]) ) {
@@ -37,8 +38,15 @@ SK_MAKE_SINGLETON(SKUtilities, sharedUtilities)
 		isRetina = NO;
 		
 #if IS_iOS
+		
+		is4InchDevice = NO;
+		
 		if (([[UIScreen mainScreen] respondsToSelector:@selector(scale)]) && ([[UIScreen mainScreen] scale] == 2.0))
 			isRetina = YES;
+		
+		if([[UIScreen mainScreen] bounds].size.height == 568) {
+			is4InchDevice = YES;
+		}
 #endif
 	}
 	return self;

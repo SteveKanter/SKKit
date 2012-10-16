@@ -146,6 +146,8 @@ NSString *_osxVersion() {
 @property(nonatomic, readonly) BOOL isIpad;
 /** Whether or not the device is retina.  Cached for performance benefits. */
 @property(nonatomic, readonly) BOOL isRetina;
+/** Whether or not the device is a 4" device.  isIpad will be NO and isRetina will be YES inherently by this being YES.  Cached for performance benefits. */
+@property(nonatomic, readonly) BOOL is4InchDevice;
 @end
 
 /** Random convenience methods to be added to all objects. */
