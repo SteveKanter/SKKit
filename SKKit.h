@@ -78,6 +78,12 @@
  */
 -(void) skClickCancelled:(NSEvent *)event;
 #endif
+
+
+
+/** Whether or not the object accepts touches and clicks [touches and clicks]. */
+@property(nonatomic, readwrite, assign) BOOL inputEnabled;
+
 @end
 
 

@@ -177,5 +177,17 @@ NSString *_osxVersion() {
  @returns the action sequence */
 -(CCAction *) runBlock:(SKKitBlock)block afterDelay:(NSTimeInterval)delay repeat:(int)repeatAmount;
 /** Provides the highest z order of all of the children of the receiver.  Useful to ensure that a node you're about to add gets placed at the very front of the view. */
+
+// if the node conforms to SKInpu
+-(void) disableInputOnSelfAndChildren;
+-(void) enableInputOnSelfAndChildren;
+
+
 @property(nonatomic, readonly) int highestZOrder;
+@end
+
+
+// See mobiledevelopertips.com/core-services/create-md5-hash-from-nsstring-nsdata-or-file.html
+@interface NSString(MD5)
+- (NSString *)MD5;
 @end

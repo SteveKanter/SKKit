@@ -8,6 +8,8 @@
 
 #import "SKUtilities.h"
 
+#import <CommonCrypto/CommonCrypto.h>
+
 /// I take 0 credit for this.  Copied directly from stackoverflow.com/questions/217578/point-in-polygon-aka-hit-test
 int pnpoly(int nvert, float *vertx, float *verty, float testx, float testy) {
 	int i, j, c = 0;
@@ -284,4 +286,46 @@ SK_MAKE_SINGLETON(SKUtilities, sharedUtilities)
 	return finalFrame;
 }
 
+
+
+-(void) _setInput:(BOOL)enabled onChildrenOf:(CCNode <SKKitInput>*)parent {
+	if([parent conformsToProtocol:@protocol(SKKitInput)]) {
+		parent.inputEnabled = enabled;
+	}
+	if([parent children] && [[parent children] count] > 0) {
+		for(CCNode *child in [parent children]) {
+			[self _setInput:enabled onChildrenOf:(id<SKKitInput>)child];
+		}
+	}
+}
+
+-(void) disableInputOnSelfAndChildren {
+	[self _setInput:NO onChildrenOf:(id<SKKitInput>)self];
+}
+-(void) enableInputOnSelfAndChildren {
+	[self _setInput:YES onChildrenOf:(id<SKKitInput>)self];
+}
+
 @end
+
+
+@implementation NSString(MD5)
+-(NSString*) MD5 {
+	// Create pointer to the string as UTF8
+	const char *ptr = [self UTF8String];
+	
+	// Create byte array of unsigned chars
+	unsigned char md5Buffer[CC_MD5_DIGEST_LENGTH];
+	
+	// Create 16 byte MD5 hash value, store in buffer
+	CC_MD5(ptr, strlen(ptr), md5Buffer);
+	
+	// Convert MD5 value in the buffer to NSString of hex values
+	NSMutableString *output = [NSMutableString stringWithCapacity:CC_MD5_DIGEST_LENGTH * 2];
+	for(int i = 0; i < CC_MD5_DIGEST_LENGTH; i++)
+		[output appendFormat:@"%02x",md5Buffer[i]];
+	
+	return output;
+}
+@end
+// END NSString MD5 Category

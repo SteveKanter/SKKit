@@ -33,18 +33,7 @@ typedef enum {
  SKCCSprite handles things such as touches/clicks as well as running animations from plists.
  */
 
-@interface SKCCSprite : CCSprite <SKKitInput> {
-	GLbyte originalOpacity_;
-	BOOL opacityPropogates_;
-	BOOL grayscaleMode_;
-	BOOL inputEnabled_;
-	
-@private
-	NSString *textureFilename_;
-	__strong NSDictionary *config_;
-	NSString *lastUsedAnimation_;
-	NSMutableDictionary *runningAnimations_;
-}
+@interface SKCCSprite : CCSprite <SKKitInput>
 
 /** Initializers */
 
@@ -92,9 +81,6 @@ typedef enum {
 @property(nonatomic, readwrite, strong) NSMutableArray *runningAnimationsBasedOnSpeed;
 
 /** @name Input */
-
-/** Whether or not the object accepts touches and clicks [touches and clicks]. */
-@property(nonatomic, readwrite, assign) BOOL inputEnabled;
 
 /** Take the touch, or event [Mac] and determine whether it is inside the contents of the node.
  @param touch the touch or event object*/
@@ -149,9 +135,6 @@ typedef enum {
  @param position position of the input, in world space.
  */
 -(void) inputCancelledWithLocation:(CGPoint)position;
-
--(void) disableInputOnSelfAndChildren;
--(void) enableInputOnSelfAndChildren;
 
 /** @name Animations */
 
