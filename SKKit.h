@@ -87,6 +87,13 @@
 @end
 
 
+@protocol SKKitInputDenier <NSObject>
+
+-(BOOL) inputValidForNode:(id<SKKitInput>)node withWorldRect:(CGRect)rect;
+
+@end
+
+
 @class SKCCSprite;
 /** Generic block with many purposes. */
 typedef void(^SKKitBlock)(void);

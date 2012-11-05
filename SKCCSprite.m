@@ -290,10 +290,39 @@ SK_MAKE_SINGLETON(SKSpriteManager, sharedSpriteManager)
 	CGRect box = CGRectMake(0, 0, self.contentSize.width, self.contentSize.height);
 	return CGRectContainsPoint(box, pos);
 }
+
+-(BOOL) anyParentsDenyingTouch {
+	
+	CCNode <SKKitInputDenier> *parent = (id)self;
+	
+	CGRect box = CGRectMake(0, 0, self.contentSize.width, self.contentSize.height);
+	box.origin = [self convertToWorldSpace:box.origin];
+	
+	while(parent) {
+		if([parent conformsToProtocol:@protocol(SKKitInputDenier)]) {
+			if(![parent inputValidForNode:self withWorldRect:box]) {
+				NSLog(@"---SKCCSprite YES");
+				return YES;
+			}
+		}
+		
+		parent = (id)parent.parent;
+	}
+	NSLog(@"---SKCCSprite NO");
+	return NO;
+}
+
 #if IS_iOS
 -(BOOL) skTouchBegan:(UITouch *)touch {
 	if(!_inputEnabled || !visible_) return NO;
 	BOOL myTouch = [self inputIsInBoundingBox:touch];
+	
+	if(myTouch) {
+		if([self anyParentsDenyingTouch]) {
+			myTouch = NO;
+		}
+	}
+	
 	if(myTouch) {
 		CGPoint pos = [self inputPositionInOpenGLTerms:touch];
 		[self inputBeganWithLocation:pos];
