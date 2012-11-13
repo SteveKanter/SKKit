@@ -301,14 +301,12 @@ SK_MAKE_SINGLETON(SKSpriteManager, sharedSpriteManager)
 	while(parent) {
 		if([parent conformsToProtocol:@protocol(SKKitInputDenier)]) {
 			if(![parent inputValidForNode:self withWorldRect:box]) {
-				NSLog(@"---SKCCSprite YES");
 				return YES;
 			}
 		}
 		
 		parent = (id)parent.parent;
 	}
-	NSLog(@"---SKCCSprite NO");
 	return NO;
 }
 
