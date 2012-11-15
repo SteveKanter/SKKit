@@ -194,8 +194,7 @@ SK_MAKE_SINGLETON(SKUtilities, sharedUtilities)
  Return the -boundingBox of another node, converted into this node's local
  coordinate space.
  */
--(CGRect) boundingBoxConvertedToNodeSpace:(CCNode *)other
-{
+-(CGRect) boundingBoxConvertedToNodeSpace:(CCNode *)other {
 	// Get the bottomLeft and topRight corners of the other node's bounding box
 	// in the other node's coordinate space.
 	CGRect boundingBox = [other boundingBox];
@@ -222,13 +221,21 @@ SK_MAKE_SINGLETON(SKUtilities, sharedUtilities)
  Return a CGRect computed as the union of this node's -boundingBox and those of
  this node's descendant nodes.
  */
--(CGRect) fullBoundingBox
-{
+
+-(CGRect) frameIgnoringSelf:(BOOL)ignoringSelf {
+	
 	NSMutableArray *stack = [NSMutableArray new];
-	float leftmost = [self boundingBox].origin.x;
-	float rightmost = leftmost + [self boundingBox].size.width;
-	float lowest = [self boundingBox].origin.y;
-	float highest = lowest + [self boundingBox].size.height;
+	
+	CGRect selfBoundingBox = [self boundingBox];
+	
+	float leftmost = selfBoundingBox.origin.x;
+	float rightmost = leftmost + selfBoundingBox.size.width;
+	float lowest = selfBoundingBox.origin.y;
+	float highest = lowest + selfBoundingBox.size.height;
+	
+	BOOL hasSetInitials = !ignoringSelf; // if we are ignoring self, then we have NOT set initials, so the first node we get, is initials
+										 // if we AREN'T ignoring ourselves, the initial values are already set.
+	
 	for (CCNode *child in self.children) { [stack addObject:child]; }
 	while ([stack count] > 0)
 	{
@@ -239,6 +246,16 @@ SK_MAKE_SINGLETON(SKUtilities, sharedUtilities)
 		float noderightmost = bb.origin.x + bb.size.width;
 		float nodelowest = bb.origin.y;
 		float nodehighest = bb.origin.y + bb.size.height;
+		
+		if(!hasSetInitials) {
+			leftmost = nodeleftmost;
+			rightmost = noderightmost;
+			lowest = nodelowest;
+			highest = nodehighest;
+			
+			hasSetInitials = YES;
+		}
+		
 		leftmost = fmin(leftmost,nodeleftmost);
 		rightmost = fmax(rightmost,noderightmost);
 		lowest = fmin(lowest,nodelowest);
@@ -254,36 +271,9 @@ SK_MAKE_SINGLETON(SKUtilities, sharedUtilities)
 	return CGRectMake(leftmost,lowest,width,height);
 }
 
--(CGRect) relativeFrame {
-	
-	CGRect bb = [self boundingBox];
-	
-	if(self.parent) {
-		bb.origin = [self convertToWorldSpaceAR:bb.origin];
-		bb.origin = [[self parent] convertToNodeSpaceAR:bb.origin];
-	}
-	
-	NSLog(@"%@: %@", self, NSStringFromCGRect(bb));
-	return bb;
-	
-}
 -(CGRect) frame {
 	
-	return [self fullBoundingBox];
-	
-	// no clue HOW it works or WHY, but fullBoundingBox seems to work marvelously.  when I have more time, i'll go through and optimize.
-	// don't have time to screw around now.
-	////
-	CGRect finalFrame = [self relativeFrame];
-	NSLog(@"*A*: %@", NSStringFromCGRect(finalFrame));
-	for(id child in self.children) {
-		if([child isKindOfClass:[CCNode class]]) {
-			finalFrame = CGRectUnion(finalFrame, [child frame]);
-			NSLog(@"*B*: %@", NSStringFromCGRect(finalFrame));
-		}
-	}
-//	finalFrame.origin = [self convertToNodeSpaceAR:finalFrame.origin];
-	return finalFrame;
+	return [self frameIgnoringSelf:NO];
 }
 
 

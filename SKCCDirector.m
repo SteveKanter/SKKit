@@ -60,7 +60,7 @@
 -(void) _recreateCocos2dTimer {
 	[_cocos2dTimer invalidate];
 	_cocos2dTimer = nil;
-	_cocos2dTimer = [NSTimer scheduledTimerWithTimeInterval:animationInterval_
+	_cocos2dTimer = [NSTimer scheduledTimerWithTimeInterval:1/30.f
 													 target:self
 												   selector:@selector(animateWhileDragging)
 												   userInfo:nil

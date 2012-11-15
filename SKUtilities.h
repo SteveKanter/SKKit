@@ -163,6 +163,7 @@ NSString *_osxVersion() {
 
 
 /** The frame for this node - uses it's childrens' relativeFrames. */
+-(CGRect) frameIgnoringSelf:(BOOL)ignoringSelf;
 -(CGRect) frame;
 
 /** Run the specified block after the provided delay.  Runs a sequence with a delay then CCCallBlock on the reciever.
