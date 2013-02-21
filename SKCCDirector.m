@@ -34,25 +34,25 @@
 		
 		if( gettimeofday( &now, NULL) != 0 ) {
 			CCLOG(@"cocos2d: error in gettimeofday");
-			dt = 0;
+			_dt = 0;
 			return;
 		}
 		
 		// new delta time
-		if( nextDeltaTimeZero_ ) {
-			dt = 0;
-			nextDeltaTimeZero_ = NO;
+		if( _nextDeltaTimeZero ) {
+			_dt = 0;
+			_nextDeltaTimeZero = NO;
 		} else {
-			dt = (now.tv_sec - lastUpdate_.tv_sec) + (now.tv_usec - lastUpdate_.tv_usec) / 1000000.0f;
-			dt = MAX(0,dt);
+			_dt = (now.tv_sec - _lastUpdate.tv_sec) + (now.tv_usec - _lastUpdate.tv_usec) / 1000000.0f;
+			_dt = MAX(0,_dt);
 		}
 		
 #ifdef IS_Debug
 		// If we are debugging our code, prevent big delta time
-		if( dt > 0.2f )
-			dt = 1/60.0f;
+		if( _dt > 0.2f )
+			_dt = 1/60.0f;
 #endif
-		lastUpdate_ = now;
+		_lastUpdate = now;
 	} else {
 		[super calculateDeltaTime];
 	}
@@ -60,7 +60,7 @@
 -(void) _recreateCocos2dTimer {
 	[_cocos2dTimer invalidate];
 	_cocos2dTimer = nil;
-	_cocos2dTimer = [NSTimer scheduledTimerWithTimeInterval:animationInterval_
+	_cocos2dTimer = [NSTimer scheduledTimerWithTimeInterval:_animationInterval
 													 target:self
 												   selector:@selector(animateWhileDragging)
 												   userInfo:nil
@@ -82,14 +82,14 @@
 -(void) animateWhileDragging {
 	if([[NSRunLoop currentRunLoop] currentMode] == UITrackingRunLoopMode) {
 		
-		if(animationInterval_ == 1/60.f) {
+		if(_animationInterval == 1/60.f) {
 			[self setAnimationInterval:1/30.f];
 		}
 		_inTrackingMode = YES;
 		
 		[[CCDirector sharedDirector] drawScene];
 		
-	} else if(animationInterval_ == 1/30.f) {
+	} else if(_animationInterval == 1/30.f) {
 		
 		_inTrackingMode = NO;
 		
