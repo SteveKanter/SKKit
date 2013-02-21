@@ -7,7 +7,7 @@
 //
 
 /** SKCCLayer is the base class for all non-colored layers.  This class handles touches and clicks via SKInputManager. */
-@interface SKCCLayer : CCLayer <CCRGBAProtocol> {
+@interface SKCCLayer : CCLayer {// <CCRGBAProtocol> {
 	BOOL opacityPropogates_;
 	GLbyte originalOpacity_;
 }

@@ -77,19 +77,19 @@
  @param priority priority of this object to get called with the input.  Highest gets it first.  Set to -1 for the highest.
  @returns the handler object created for this node */
 -(SKInputManagerHandler *) addHandler:(id<SKKitInput>)obj withPriority:(int)priority;
-/** Touches and clicks are sent to this method when they begin.  Generally ,you don't call this method directly.  If using an SKCCLayer or a SKCCLayerColor, just set self.isTouchEnabled or self.isMouseEnabled to YES.
+/** Touches and clicks are sent to this method when they begin.  Generally ,you don't call this method directly.  If using an SKCCLayer or a SKCCLayerColor, just set self.touchEnabled or self.isMouseEnabled to YES.
  @param input on iOS the UITouch, on Mac, nil
  @param event on iOS the UIEvent, on Mac, the NSEvent */
 -(void) inputBegan:(id)input withEvent:(id)event;
-/** Touches and clicks are sent to this method when they move.  Generally ,you don't call this method directly.  If using an SKCCLayer or a SKCCLayerColor, just set self.isTouchEnabled or self.isMouseEnabled to YES.
+/** Touches and clicks are sent to this method when they move.  Generally ,you don't call this method directly.  If using an SKCCLayer or a SKCCLayerColor, just set self.touchEnabled or self.isMouseEnabled to YES.
  @param input on iOS the UITouch, on Mac, nil
  @param event on iOS the UIEvent, on Mac, the NSEvent */
 -(void) inputMoved:(id)input withEvent:(id)event;
-/** Touches and clicks are sent to this method when they end.  Generally ,you don't call this method directly.  If using an SKCCLayer or a SKCCLayerColor, just set self.isTouchEnabled or self.isMouseEnabled to YES.
+/** Touches and clicks are sent to this method when they end.  Generally ,you don't call this method directly.  If using an SKCCLayer or a SKCCLayerColor, just set self.touchEnabled or self.isMouseEnabled to YES.
  @param input on iOS the UITouch, on Mac, nil
  @param event on iOS the UIEvent, on Mac, the NSEvent */
 -(void) inputEnded:(id)input withEvent:(id)event;
-/** Touches and clicks are sent to this method when they are cancelled.  Generally ,you don't call this method directly.  If using an SKCCLayer or a SKCCLayerColor, just set self.isTouchEnabled or self.isMouseEnabled to YES.
+/** Touches and clicks are sent to this method when they are cancelled.  Generally ,you don't call this method directly.  If using an SKCCLayer or a SKCCLayerColor, just set self.touchEnabled or self.isMouseEnabled to YES.
  @param input on iOS the UITouch, on Mac, nil
  @param event on iOS the UIEvent, on Mac, the NSEvent */
 -(void) inputCancelled:(id)input withEvent:(id)event;
