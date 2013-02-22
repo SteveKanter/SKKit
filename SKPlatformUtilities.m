@@ -51,6 +51,7 @@ BOOL isIpad() {return [[SKUtilities sharedUtilities] isIpad];}
 BOOL isIpad() {return NO;}
 #endif
 BOOL isRetina() {return [[SKUtilities sharedUtilities] isRetina];}
+BOOL is4InchDevice() {return [[SKUtilities sharedUtilities] is4InchDevice];}
 
 NSString* SKGetiPadExtension() {return (CC_CONTENT_SCALE_FACTOR() == 2 ? @"" : @"-hd");}
 NSString* SKGetiPadDeviceExtension() {return (CC_CONTENT_SCALE_FACTOR() == 2 ? @"" : @"~iPad");}

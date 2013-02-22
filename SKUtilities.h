@@ -8,6 +8,9 @@
 
 #import "SKSingleton.h"
 
+#if IS_Mac
+#import <CoreServices/CoreServices.h>
+#endif
 
 typedef struct _SKCircle {
 	CGPoint location;
@@ -46,11 +49,42 @@ NS_INLINE SKEllipse SKEllipseMake(CGPoint location, CGSize radius) {
 														forKey:@__KEY_INTO_STRING(_iVarAndKey_)]
 #define ENCODE_OBJECT_WITH_KEY(_iVarAndKey_) [coder encodeObject:_##_iVarAndKey_\
 														  forKey:@__KEY_INTO_STRING(_iVarAndKey_)]
+#define ENCODE_UNSIGNED_LONG_LONG_WITH_KEY(_iVarAndKey_) [coder encodeObject:[NSString stringWithFormat:@"%lli", _##_iVarAndKey_]\
+																	 forKey:@__KEY_INTO_STRING(_iVarAndKey_)]
 
 #define DECODE_INT_WITH_KEY(_iVarAndKey_) _##_iVarAndKey_ = [decoder decodeIntForKey:@__KEY_INTO_STRING(_iVarAndKey_)]
 #define DECODE_BOOL_WITH_KEY(_iVarAndKey_) _##_iVarAndKey_ = [decoder decodeBoolForKey:@__KEY_INTO_STRING(_iVarAndKey_)]
 #define DECODE_FLOAT_WITH_KEY(_iVarAndKey_) _##_iVarAndKey_ = [decoder decodeFloatForKey:@__KEY_INTO_STRING(_iVarAndKey_)]
 #define DECODE_OBJECT_WITH_KEY(_iVarAndKey_) _##_iVarAndKey_ = [decoder decodeObjectForKey:@__KEY_INTO_STRING(_iVarAndKey_)]
+#define DECODE_UNSIGNED_LONG_LONG_WITH_KEY(_iVarAndKey_) _##_iVarAndKey_ = strtoull([[decoder decodeObjectForKey:@__KEY_INTO_STRING(_iVarAndKey_)] UTF8String], NULL, 0)
+
+
+
+// from gist.github.com/953657 and adopted for OS X as well.
+
+#if IS_iOS
+	#define SYSTEM_VERSION_EQUAL_TO(v)                  ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] == NSOrderedSame)
+	#define SYSTEM_VERSION_GREATER_THAN(v)              ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] == NSOrderedDescending)
+	#define SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(v)  ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedAscending)
+	#define SYSTEM_VERSION_LESS_THAN(v)                 ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] == NSOrderedAscending)
+	#define SYSTEM_VERSION_LESS_THAN_OR_EQUAL_TO(v)     ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedDescending)
+#elif IS_Mac
+
+NSString *_osxVersion() {	
+	SInt32 major, minor, bugfix;
+	Gestalt(gestaltSystemVersionMajor, &major);
+	Gestalt(gestaltSystemVersionMinor, &minor);
+	Gestalt(gestaltSystemVersionBugFix, &bugfix);
+	
+	return [NSString stringWithFormat:@"%d.%d.%d", major, minor, bugfix];
+}
+
+	#define SYSTEM_VERSION_EQUAL_TO(v)                  ([_osxVersion() compare:v options:NSNumericSearch] == NSOrderedSame)
+	#define SYSTEM_VERSION_GREATER_THAN(v)              ([_osxVersion() compare:v options:NSNumericSearch] == NSOrderedDescending)
+	#define SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(v)  ([_osxVersion() compare:v options:NSNumericSearch] != NSOrderedAscending)
+	#define SYSTEM_VERSION_LESS_THAN(v)                 ([_osxVersion() compare:v options:NSNumericSearch] == NSOrderedAscending)
+	#define SYSTEM_VERSION_LESS_THAN_OR_EQUAL_TO(v)     ([_osxVersion() compare:v options:NSNumericSearch] != NSOrderedDescending)
+#endif
 
 /** SKUtilities is generally a singleton class.  It's designed to do random tasks that are easiest to perform on an object. */
 
@@ -112,6 +146,8 @@ NS_INLINE SKEllipse SKEllipseMake(CGPoint location, CGSize radius) {
 @property(nonatomic, readonly) BOOL isIpad;
 /** Whether or not the device is retina.  Cached for performance benefits. */
 @property(nonatomic, readonly) BOOL isRetina;
+/** Whether or not the device is a 4" device.  isIpad will be NO and isRetina will be YES inherently by this being YES.  Cached for performance benefits. */
+@property(nonatomic, readonly) BOOL is4InchDevice;
 @end
 
 /** Random convenience methods to be added to all objects. */
@@ -124,6 +160,12 @@ NS_INLINE SKEllipse SKEllipseMake(CGPoint location, CGSize radius) {
 
 /** Random convenience methods to be added to all cocos2d nodes. */
 @interface CCNode (SKKitUtilitiesAdditions)
+
+
+/** The frame for this node - uses it's childrens' relativeFrames. */
+-(CGRect) frameIgnoringSelf:(BOOL)ignoringSelf;
+-(CGRect) frame;
+
 /** Run the specified block after the provided delay.  Runs a sequence with a delay then CCCallBlock on the reciever.
  @param block block to be called
  @param delay delay to wait before calling block
@@ -136,5 +178,17 @@ NS_INLINE SKEllipse SKEllipseMake(CGPoint location, CGSize radius) {
  @returns the action sequence */
 -(CCAction *) runBlock:(SKKitBlock)block afterDelay:(NSTimeInterval)delay repeat:(int)repeatAmount;
 /** Provides the highest z order of all of the children of the receiver.  Useful to ensure that a node you're about to add gets placed at the very front of the view. */
+
+// if the node conforms to SKInpu
+-(void) disableInputOnSelfAndChildren;
+-(void) enableInputOnSelfAndChildren;
+
+
 @property(nonatomic, readonly) int highestZOrder;
+@end
+
+
+// See mobiledevelopertips.com/core-services/create-md5-hash-from-nsstring-nsdata-or-file.html
+@interface NSString(MD5)
+- (NSString *)MD5;
 @end

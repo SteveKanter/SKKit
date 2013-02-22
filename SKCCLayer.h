@@ -31,14 +31,6 @@
 -(SKCCLayer *) weak;
 
 
-/** Relative frame for a specific node - takes into account a lot of different info - could be a better way - hack for now.
- @param whom who to get the relative frame of */
--(CGRect) relativeFrameFor:(CCNode *)whom;
-/** Relative frame for a this node */
--(CGRect) relativeFrame;
-/** The frame for this node - uses it's childrens' relativeFrames. */
--(CGRect) frame;
-
 /** Whether or not the opacity of this node gets propogated to it's children, with the children taking their originalOpacity's into account. */
 @property(nonatomic, assign) BOOL opacityPropogates;
 /** The "original opacity" of the layer.  That's to say, what the "base" opacity of the node is.

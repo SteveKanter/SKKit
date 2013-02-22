@@ -107,6 +107,9 @@ SK_MAKE_SINGLETON(SKInputManager, sharedInputManager)
 #endif	
 }
 -(void) inputBegan:(id)input withEvent:(id)event {
+	
+	if(!_inputEnabled) return;
+	
 	int hash = [self getHashFromInput:input andEvent:event];
 	if(![self claimedInput][@(hash)]) {
 		for(SKInputManagerHandler *handler in [self sortedHandlers]) {
@@ -132,6 +135,9 @@ SK_MAKE_SINGLETON(SKInputManager, sharedInputManager)
 	}
 }
 -(void) inputMoved:(id)input withEvent:(id)event {
+	
+	if(!_inputEnabled) return;
+	
 	int hash = [self getHashFromInput:input andEvent:event];
 	SKInputManagerHandler *handler = [self claimedInput][@(hash)];
 	if(handler) {
@@ -151,6 +157,9 @@ SK_MAKE_SINGLETON(SKInputManager, sharedInputManager)
 	}
 }
 -(void) inputEnded:(id)input withEvent:(id)event {
+	
+	if(!_inputEnabled) return;
+	
 	int hash = [self getHashFromInput:input andEvent:event];
 	SKInputManagerHandler *handler = [self claimedInput][@(hash)];
 	if(handler) {
@@ -171,6 +180,9 @@ SK_MAKE_SINGLETON(SKInputManager, sharedInputManager)
 	}
 }
 -(void) inputCancelled:(id)input withEvent:(id)event {
+	
+	if(!_inputEnabled) return;
+	
 	int hash = [self getHashFromInput:input andEvent:event];
 	SKInputManagerHandler *handler = [self claimedInput][@(hash)];
 	if(handler) {
@@ -191,6 +203,9 @@ SK_MAKE_SINGLETON(SKInputManager, sharedInputManager)
 	}
 }
 -(void) mouseMovedWithEvent:(id)event {
+	
+	if(!_inputEnabled) return;
+	
 #if IS_Mac
 	for(SKInputManagerHandler *handler in self.handlers) {
 		if(handler.mouseMovedBlock) {

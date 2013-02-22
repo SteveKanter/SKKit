@@ -8,6 +8,8 @@
 
 #import "SKUtilities.h"
 
+#import <CommonCrypto/CommonCrypto.h>
+
 /// I take 0 credit for this.  Copied directly from stackoverflow.com/questions/217578/point-in-polygon-aka-hit-test
 int pnpoly(int nvert, float *vertx, float *verty, float testx, float testy) {
 	int i, j, c = 0;
@@ -26,6 +28,7 @@ SK_MAKE_SINGLETON(SKUtilities, sharedUtilities)
 
 @synthesize isIpad;
 @synthesize isRetina;
+@synthesize is4InchDevice;
 
 -(id) init {
 	if( (self = [super init]) ) {
@@ -37,8 +40,15 @@ SK_MAKE_SINGLETON(SKUtilities, sharedUtilities)
 		isRetina = NO;
 		
 #if IS_iOS
+		
+		is4InchDevice = NO;
+		
 		if (([[UIScreen mainScreen] respondsToSelector:@selector(scale)]) && ([[UIScreen mainScreen] scale] == 2.0))
 			isRetina = YES;
+		
+		if([[UIScreen mainScreen] bounds].size.height == 568) {
+			is4InchDevice = YES;
+		}
 #endif
 	}
 	return self;
@@ -177,4 +187,135 @@ SK_MAKE_SINGLETON(SKUtilities, sharedUtilities)
 	}
 	return highest;
 }
+
+// from www.cocos2d-iphone.org/forum/topic/20896
+
+/*!
+ Return the -boundingBox of another node, converted into this node's local
+ coordinate space.
+ */
+-(CGRect) boundingBoxConvertedToNodeSpace:(CCNode *)other {
+	// Get the bottomLeft and topRight corners of the other node's bounding box
+	// in the other node's coordinate space.
+	CGRect boundingBox = [other boundingBox];
+	CGPoint bottomLeft = CGPointMake(boundingBox.origin.x, boundingBox.origin.y);
+	CGPoint topRight = CGPointMake(boundingBox.origin.x + boundingBox.size.width, boundingBox.origin.y + boundingBox.size.height);
+	
+	// Convert bottomLeft and topRight to the global coordinate space.
+	CGPoint worldSpaceBottomLeft = [other.parent convertToWorldSpace:bottomLeft];
+	CGPoint worldSpaceTopRight = [other.parent convertToWorldSpace:topRight];
+	
+	// Convert worldSpaceBottomLeft and worldSpaceTopRight into this node's
+	// local coordinate space.
+	CGPoint nodeSpaceBottomLeft = [self.parent convertToNodeSpace:worldSpaceBottomLeft];
+	CGPoint nodeSpaceTopRight = [self.parent convertToNodeSpace:worldSpaceTopRight];
+	
+	// Finally, construct the bounding box in this node's local coordinate space
+	// and return it.
+	float width = nodeSpaceTopRight.x - nodeSpaceBottomLeft.x;
+	float height = nodeSpaceTopRight.y - nodeSpaceBottomLeft.y;
+	return CGRectMake(nodeSpaceBottomLeft.x, nodeSpaceBottomLeft.y, width, height);
+}
+
+/*!
+ Return a CGRect computed as the union of this node's -boundingBox and those of
+ this node's descendant nodes.
+ */
+
+-(CGRect) frameIgnoringSelf:(BOOL)ignoringSelf {
+	
+	NSMutableArray *stack = [NSMutableArray new];
+	
+	CGRect selfBoundingBox = [self boundingBox];
+	
+	float leftmost = selfBoundingBox.origin.x;
+	float rightmost = leftmost + selfBoundingBox.size.width;
+	float lowest = selfBoundingBox.origin.y;
+	float highest = lowest + selfBoundingBox.size.height;
+	
+	BOOL hasSetInitials = !ignoringSelf; // if we are ignoring self, then we have NOT set initials, so the first node we get, is initials
+										 // if we AREN'T ignoring ourselves, the initial values are already set.
+	
+	for (CCNode *child in self.children) { [stack addObject:child]; }
+	while ([stack count] > 0)
+	{
+		__strong CCNode *node = [stack lastObject];
+		[stack removeLastObject];
+		CGRect bb = [self boundingBoxConvertedToNodeSpace:node];
+		float nodeleftmost = bb.origin.x;
+		float noderightmost = bb.origin.x + bb.size.width;
+		float nodelowest = bb.origin.y;
+		float nodehighest = bb.origin.y + bb.size.height;
+		
+		if(!hasSetInitials) {
+			leftmost = nodeleftmost;
+			rightmost = noderightmost;
+			lowest = nodelowest;
+			highest = nodehighest;
+			
+			hasSetInitials = YES;
+		}
+		
+		leftmost = fmin(leftmost,nodeleftmost);
+		rightmost = fmax(rightmost,noderightmost);
+		lowest = fmin(lowest,nodelowest);
+		highest = fmax(highest,nodehighest);
+		for (CCNode *child in node.children)
+		{
+			[stack addObject:child];
+		}
+		node = nil;
+	}
+	float width = rightmost - leftmost;
+	float height = highest - lowest;
+	return CGRectMake(leftmost,lowest,width,height);
+}
+
+-(CGRect) frame {
+	
+	return [self frameIgnoringSelf:NO];
+}
+
+
+
+-(void) _setInput:(BOOL)enabled onChildrenOf:(CCNode <SKKitInput>*)parent {
+	if([parent conformsToProtocol:@protocol(SKKitInput)]) {
+		parent.inputEnabled = enabled;
+	}
+	if([parent children] && [[parent children] count] > 0) {
+		for(CCNode *child in [parent children]) {
+			[self _setInput:enabled onChildrenOf:(id<SKKitInput>)child];
+		}
+	}
+}
+
+-(void) disableInputOnSelfAndChildren {
+	[self _setInput:NO onChildrenOf:(id<SKKitInput>)self];
+}
+-(void) enableInputOnSelfAndChildren {
+	[self _setInput:YES onChildrenOf:(id<SKKitInput>)self];
+}
+
 @end
+
+
+@implementation NSString(MD5)
+-(NSString*) MD5 {
+	// Create pointer to the string as UTF8
+	const char *ptr = [self UTF8String];
+	
+	// Create byte array of unsigned chars
+	unsigned char md5Buffer[CC_MD5_DIGEST_LENGTH];
+	
+	// Create 16 byte MD5 hash value, store in buffer
+	CC_MD5(ptr, strlen(ptr), md5Buffer);
+	
+	// Convert MD5 value in the buffer to NSString of hex values
+	NSMutableString *output = [NSMutableString stringWithCapacity:CC_MD5_DIGEST_LENGTH * 2];
+	for(int i = 0; i < CC_MD5_DIGEST_LENGTH; i++)
+		[output appendFormat:@"%02x",md5Buffer[i]];
+	
+	return output;
+}
+@end
+// END NSString MD5 Category

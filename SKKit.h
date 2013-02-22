@@ -78,6 +78,19 @@
  */
 -(void) skClickCancelled:(NSEvent *)event;
 #endif
+
+
+
+/** Whether or not the object accepts touches and clicks [touches and clicks]. */
+@property(nonatomic, readwrite, assign) BOOL inputEnabled;
+
+@end
+
+
+@protocol SKKitInputDenier <NSObject>
+
+-(BOOL) inputValidForNode:(id<SKKitInput>)node withWorldRect:(CGRect)rect;
+
 @end
 
 
@@ -106,7 +119,10 @@ typedef void(^SKNotificationCenterBlock)(NSNotification *notification);
 
 #define UIColorFromRGBWithAlpha(rgbValue,a) [UIColor colorWithRed:((float)((rgbValue & 0xFF0000) >> 16))/255.0 \ green:((float)((rgbValue & 0xFF00) >> 8))/255.0\ blue:((float)(rgbValue & 0xFF))/255.0 alpha:a]
 
-#define CCColorFromRGB(rgbValue) ccc3(((rgbValue & 0xFF0000) >> 16), ((rgbValue & 0xFF00) >> 8), (rgbValue & 0xFF));
+#define CCColorFromRGB(rgbValue) ccc3(((rgbValue & 0xFF0000) >> 16), ((rgbValue & 0xFF00) >> 8), (rgbValue & 0xFF))
+#define CCColorFromRGBWithAlpha(rgbValue,a) ccc4(((rgbValue & 0xFF0000) >> 16), ((rgbValue & 0xFF00) >> 8), (rgbValue & 0xFF), a)
+#define CCColorFromRGBString(rgbStringValue) ({unsigned int rgbValue;[[NSScanner scannerWithString:rgbStringValue] scanHexInt:&rgbValue]; CCColorFromRGB(rgbValue);})
+#define CCColorFromRGBStringWithAlpha(rgbStringValue, a) ({unsigned int rgbValue;[[NSScanner scannerWithString:rgbStringValue] scanHexInt:&rgbValue]; CCColorFromRGBWithAlpha(rgbValue, a);})
 
 #define RESOURCEFILE(__FILENAME__) ([NSString stringWithFormat:@"%@/%@", [[NSBundle mainBundle] resourcePath], __FILENAME__])
 #define DOCUMENTSFILE(__FILENAME__) ([NSString stringWithFormat:@"%@/%@", [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDirectory, YES) lastObject], __FILENAME__])
@@ -121,5 +137,6 @@ typedef void(^SKNotificationCenterBlock)(NSNotification *notification);
 #import "SKInputManager.h"
 #import "SKUtilities.h"
 #import "SKGameCenterManager.h"
+#import "SKServerSignature.h"
 
 #endif

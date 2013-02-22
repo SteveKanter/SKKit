@@ -35,11 +35,6 @@ NSString *const SKCCSpriteAnimationSpeedNotification = @"SKCCSpriteAnimationSpee
 
 @implementation SKSpriteAnimationAsyncLoader
 
-@synthesize delegate=_delegate;
-@synthesize animationName=_animationName;
-@synthesize animationBlock=_animationBlock;
-@synthesize animationOptions=_animationOptions;
-@synthesize animationSpritesheetControlFile=_animationSpritesheetControlFile;
 
 -(void) doneLoading:(CCTexture2D *)texture {
 	[[CCSpriteFrameCache sharedSpriteFrameCache] addSpriteFramesWithFile:_animationSpritesheetControlFile
@@ -105,17 +100,11 @@ SK_MAKE_SINGLETON(SKSpriteManager, sharedSpriteManager)
 	
 	__strong NSString *_spritesheetPrefix;
 	__strong NSMutableArray *_loaders;
+	
+	NSString *_lastUsedAnimation;
 }
 
-@synthesize originalOpacity=originalOpacity_;
-@synthesize opacityPropogates=opacityPropogates_;
-@synthesize inputEnabled=inputEnabled_;
-@synthesize textureFilename=textureFilename_;
-@synthesize config=config_;
-@synthesize grayscaleMode=grayscaleMode_;
-@synthesize lastUsedAnimation=lastUsedAnimation_;
-@synthesize runningAnimations=runningAnimations_;
-@synthesize runningAnimationsBasedOnSpeed=_runningAnimationsBasedOnSpeed;
+@synthesize inputEnabled=_inputEnabled;
 
 -(void) setupTextureFilenameWithFilename:(NSString *)filename {
 	self.textureFilename = filename;
@@ -199,22 +188,22 @@ SK_MAKE_SINGLETON(SKSpriteManager, sharedSpriteManager)
 		found = YES;
 		// default to NO extension.
 	}
-	config_ = [[SKSpriteManager sharedSpriteManager] getConfigByFilename:finalFilename];
+	_config = [[SKSpriteManager sharedSpriteManager] getConfigByFilename:finalFilename];
 }
 -(id) initWithTexture:(CCTexture2D *)texture rect:(CGRect)rect rotated:(BOOL)rotated {
 	if( (self = [super initWithTexture:texture rect:rect rotated:rotated]) ) {
-		inputEnabled_ = YES;
-		textureFilename_ = nil;
-		config_ = nil;
-		grayscaleMode_ = NO;
-		lastUsedAnimation_ = nil;
+		_inputEnabled = YES;
+		_textureFilename = nil;
+		_config = nil;
+		_grayscaleMode = NO;
+		_lastUsedAnimation = nil;
 		_spritesheetPrefix = nil;
 //#if IS_iOS
 		observers_ = [NSMutableArray arrayWithCapacity:3];
 //#endif
-		runningAnimations_ = [[NSMutableDictionary alloc] initWithCapacity:2];
+		_runningAnimations = [[NSMutableDictionary alloc] initWithCapacity:2];
 		_runningAnimationsBasedOnSpeed = [NSMutableArray arrayWithCapacity:2];
-		originalOpacity_ = -1;
+		_originalOpacity = -1;
 		
 		_loaders = [NSMutableArray arrayWithCapacity:10];
 	}
@@ -280,6 +269,7 @@ SK_MAKE_SINGLETON(SKSpriteManager, sharedSpriteManager)
 	_runningAnimationsBasedOnSpeed = nil;
 	[[SKInputManager sharedInputManager] removeHandler:self];
 	[self removeAllAsyncLoaders];
+	[self removeObserver];
 	[super onExit];
 }
 
@@ -300,10 +290,37 @@ SK_MAKE_SINGLETON(SKSpriteManager, sharedSpriteManager)
 	CGRect box = CGRectMake(0, 0, self.contentSize.width, self.contentSize.height);
 	return CGRectContainsPoint(box, pos);
 }
+
+-(BOOL) anyParentsDenyingTouch {
+	
+	CCNode <SKKitInputDenier> *parent = (id)self;
+	
+	CGRect box = CGRectMake(0, 0, self.contentSize.width, self.contentSize.height);
+	box.origin = [self convertToWorldSpace:box.origin];
+	
+	while(parent) {
+		if([parent conformsToProtocol:@protocol(SKKitInputDenier)]) {
+			if(![parent inputValidForNode:self withWorldRect:box]) {
+				return YES;
+			}
+		}
+		
+		parent = (id)parent.parent;
+	}
+	return NO;
+}
+
 #if IS_iOS
 -(BOOL) skTouchBegan:(UITouch *)touch {
 	if(!inputEnabled_ || !_visible) return NO;
 	BOOL myTouch = [self inputIsInBoundingBox:touch];
+	
+	if(myTouch) {
+		if([self anyParentsDenyingTouch]) {
+			myTouch = NO;
+		}
+	}
+	
 	if(myTouch) {
 		CGPoint pos = [self inputPositionInOpenGLTerms:touch];
 		[self inputBeganWithLocation:pos];
@@ -386,24 +403,6 @@ SK_MAKE_SINGLETON(SKSpriteManager, sharedSpriteManager)
 	SKInputManager *inputManager = [SKInputManager sharedInputManager];
 	SKInputManagerHandler *handler = [inputManager handlerObjectForNode:self];
 	[handler setMouseMovedBlock:block];
-}
-
--(void) _setInput:(BOOL)enabled onChildrenOf:(SKCCSprite *)parent {
-	if([parent isKindOfClass:[SKCCSprite class]]) {
-		parent.inputEnabled = enabled;
-	}
-	if([parent children] && [[parent children] count] > 0) {
-		for(SKCCSprite *child in [parent children]) {
-			[self _setInput:enabled onChildrenOf:child];
-		}
-	}
-}
-
--(void) disableInputOnSelfAndChildren {
-	[self _setInput:NO onChildrenOf:self];
-}
--(void) enableInputOnSelfAndChildren {
-	[self _setInput:YES onChildrenOf:self];
 }
 
 -(int) getSpriteSheetColumn:(int)frameNumber {
@@ -745,40 +744,6 @@ SK_MAKE_SINGLETON(SKSpriteManager, sharedSpriteManager)
 }
 //#endif
 
-
--(CGRect) relativeFrameFor:(CCNode *)whom {
-	CGPoint pos = [whom boundingBox].origin;
-	CCNode *obj = whom.parent;
-	float overallXScale = 1.0;
-	float overallYScale = 1.0;
-	while(obj && ![obj isKindOfClass:[CCLayer class]]) {
-		pos.x += obj.boundingBox.origin.x;
-		pos.y += obj.boundingBox.origin.y;
-		overallXScale *= obj.scaleX;
-		overallYScale *= obj.scaleY;
-		obj = obj.parent;
-		if(!obj) {obj = nil;}
-	}
-	overallXScale *= whom.scaleX;
-	overallYScale *= whom.scaleY;
-	return CGRectMake(pos.x * overallXScale, pos.y * overallYScale,
-					  [whom boundingBox].size.width * overallXScale, [whom boundingBox].size.height * overallYScale);
-}
-
--(CGRect) relativeFrame {
-	return [self relativeFrameFor:self];
-}
--(CGRect) frame {
-	CGRect finalFrame = [self relativeFrame];
-	for(id child in self.children) {
-		if([child respondsToSelector:@selector(relativeFrame)]) {
-			finalFrame = CGRectUnion(finalFrame, [(SKCCSprite *)child relativeFrame]);
-		} else if([child isKindOfClass:[CCNode class]]) {
-			finalFrame = CGRectUnion(finalFrame, [self relativeFrameFor:child]);
-		}
-	}
-	return finalFrame;
-}
 
 -(void) removeAsyncLoader:(SKSpriteAnimationAsyncLoader *)loader {
 	[_loaders removeObject:loader];

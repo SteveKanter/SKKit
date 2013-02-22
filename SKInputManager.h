@@ -107,4 +107,7 @@
  @returns the handler object created for this node */
 -(SKInputManagerHandler *) handlerObjectForNode:(id)node;
 
+
+@property(nonatomic, readwrite) BOOL inputEnabled;
+
 @end
