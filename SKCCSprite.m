@@ -312,7 +312,7 @@ SK_MAKE_SINGLETON(SKSpriteManager, sharedSpriteManager)
 
 #if IS_iOS
 -(BOOL) skTouchBegan:(UITouch *)touch {
-	if(!inputEnabled_ || !_visible) return NO;
+	if(!_inputEnabled || !_visible) return NO;
 	BOOL myTouch = [self inputIsInBoundingBox:touch];
 	
 	if(myTouch) {
