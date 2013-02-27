@@ -312,7 +312,7 @@ SK_MAKE_SINGLETON(SKSpriteManager, sharedSpriteManager)
 
 #if IS_iOS
 -(BOOL) skTouchBegan:(UITouch *)touch {
-	if(!_inputEnabled || !visible_) return NO;
+	if(!_inputEnabled || !_visible) return NO;
 	BOOL myTouch = [self inputIsInBoundingBox:touch];
 	
 	if(myTouch) {
@@ -607,7 +607,7 @@ SK_MAKE_SINGLETON(SKSpriteManager, sharedSpriteManager)
 		NSMutableArray *frames = [NSMutableArray arrayWithCapacity:[frameIndexes count]];
 		
 		if(!_spritesheetPrefix) { // not from texturepacker
-			CCSpriteBatchNode *spriteSheet = [CCSpriteBatchNode batchNodeWithTexture:texture_];
+			CCSpriteBatchNode *spriteSheet = [CCSpriteBatchNode batchNodeWithTexture:_texture];
 			CCTexture2D *animationTexture = spriteSheet.textureAtlas.texture;
 			CGRect baseRect = SKCGRectMake(0,0, [(self.config)[@"spriteWidth"] intValue], [(self.config)[@"spriteHeight"] intValue]);
 			for(NSNumber *frameNumber in frameIndexes) {
