@@ -125,7 +125,7 @@ typedef void(^SKNotificationCenterBlock)(NSNotification *notification);
 #define CCColorFromRGBStringWithAlpha(rgbStringValue, a) ({unsigned int rgbValue;[[NSScanner scannerWithString:rgbStringValue] scanHexInt:&rgbValue]; CCColorFromRGBWithAlpha(rgbValue, a);})
 
 #define RESOURCEFILE(__FILENAME__) ([NSString stringWithFormat:@"%@/%@", [[NSBundle mainBundle] resourcePath], __FILENAME__])
-#define DOCUMENTSFILE(__FILENAME__) ([NSString stringWithFormat:@"%@/%@", [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDirectory, YES) lastObject], __FILENAME__])
+#define DOCUMENTSFILE(__FILENAME__) ([NSString stringWithFormat:@"%@/%@", [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject], __FILENAME__])
 
 #import "SKKitDefines.h"
 #import "SKPlatformUtilities.h"
