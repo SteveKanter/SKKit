@@ -28,6 +28,7 @@ SK_MAKE_SINGLETON(SKInputManager, sharedInputManager)
 
 -(id) init {
 	if( (self = [super init]) ) {
+		_inputEnabled = YES; // enabled by default.
 		self.handlers = [NSMutableArray arrayWithCapacity:10];
 		self.sortedHandlers = [NSMutableArray arrayWithCapacity:10];
 		self.claimedInput = [NSMutableDictionary dictionaryWithCapacity:10];

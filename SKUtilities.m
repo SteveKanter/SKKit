@@ -241,6 +241,9 @@ SK_MAKE_SINGLETON(SKUtilities, sharedUtilities)
 	{
 		__strong CCNode *node = [stack lastObject];
 		[stack removeLastObject];
+		
+		if(!node.visible) continue;
+		
 		CGRect bb = [self boundingBoxConvertedToNodeSpace:node];
 		float nodeleftmost = bb.origin.x;
 		float noderightmost = bb.origin.x + bb.size.width;

@@ -70,7 +70,7 @@ SK_MAKE_SINGLETON(SKSpriteManager, sharedSpriteManager)
 	if(!config) {
 		NSString *file = filename;
 		if(![filename isAbsolutePath]) {
-			file = RESOURCEFILE(filename);
+			file = [[CCFileUtils sharedFileUtils] fullPathForFilename:filename];
 		}
 		config = [NSDictionary dictionaryWithContentsOfFile:file];
 		if(config) {
@@ -167,7 +167,7 @@ SK_MAKE_SINGLETON(SKSpriteManager, sharedSpriteManager)
 		testFilename = [self removeSuffix:@"-iPadHD" fromPath:testFilename];
 #endif
 		// turn the relative into an absolute, to see if having the suffix helps.
-		testFilename = [[CCFileUtils sharedFileUtils] fullPathFromRelativePath:testFilename];
+		testFilename = [[CCFileUtils sharedFileUtils] fullPathForFilename:testFilename];
 		// remove the path extension
 		testFilename = [testFilename stringByDeletingPathExtension];
 		// slap on the plist extension and BAM - we got a plist filename.
@@ -213,7 +213,10 @@ SK_MAKE_SINGLETON(SKSpriteManager, sharedSpriteManager)
 	_spritesheetPrefix = prefix;
 }
 +(NSString *) texturePackerAbsoluteFileFromControlFile:(NSString *)controlFile {
-	return [[CCFileUtils sharedFileUtils] fullPathFromRelativePath:controlFile];
+	if([controlFile isAbsolutePath]) {
+		return controlFile;
+	}
+	return [[CCFileUtils sharedFileUtils] fullPathForFilename:controlFile];
 }
 
 +(id) spriteFromTexturePackerControlFile:(NSString *)filename {
@@ -222,7 +225,7 @@ SK_MAKE_SINGLETON(SKSpriteManager, sharedSpriteManager)
 	NSDictionary *config = [sprite config];
 	if(config[@"spritesheetControlFile"]) {
 		NSString *controlFile = [config[@"spritesheetControlFile"] stringByAppendingPathExtension:@"plist"];
-		[[CCSpriteFrameCache sharedSpriteFrameCache] addSpriteFramesWithFile:[self texturePackerAbsoluteFileFromControlFile:controlFile]];
+		[[CCSpriteFrameCache sharedSpriteFrameCache] addSpriteFramesWithFile:controlFile];
 		[sprite setSpritesheetPrefix:config[@"spritesheetFramePrefix"]];
 		[sprite setupTextureFilenameWithFilename:config[@"spritesheetControlFile"]];
 	}
