@@ -62,15 +62,6 @@ typedef enum {
 
 /** @name Display */
 
-/** Whether or not the opacity of this node gets propogated to it's children, with the children taking their originalOpacity's into account. */
-@property(nonatomic, assign) BOOL opacityPropogates;
-/** The "original opacity" of the layer.  That's to say, what the "base" opacity of the node is.
- 
- For example, if you want to CCFadeOut from half-opacity of the node, originalOpacity_ should be set to 127 BEFORE the fade out is called.
- */
-@property(nonatomic, assign) GLbyte originalOpacity;
-/** Whether or not the sprite is in "grayscale" mode.  This works by retaining the color version of the texture, creating a grayscale version, and then displaying it.  Once this grayscale texture is created, it's retained even after grayscaleMode is set to NO. */
-@property(nonatomic, assign) BOOL grayscaleMode;
 /** The config from the plist associated with the sprite.  It's simply public for testing the plist loading - you should never rely on this for information. */
 @property(nonatomic, readonly) NSDictionary *config;
 

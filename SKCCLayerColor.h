@@ -7,10 +7,7 @@
 //
 
 /** SKCCLayerColor is the base class for all colored layers.  This class handles touches and clicks via SKInputManager. */
-@interface SKCCLayerColor : CCLayerColor {
-	BOOL opacityPropogates_;
-	GLbyte originalOpacity_;
-}
+@interface SKCCLayerColor : CCLayerColor
 /** Fade out ALL UIKit elements that are subviews of CCDirector's view and then call the block
  @param block an SKKitBlock to call after the views have been faded out.
  */
@@ -30,13 +27,5 @@
  @returns __weak version of self. */
 -(SKCCLayerColor *) weak;
 #endif
-
-/** Whether or not the opacity of this node gets propogated to it's children, with the children taking their originalOpacity's into account. */
-@property(nonatomic, assign) BOOL opacityPropogates;
-/** The "original opacity" of the layer.  That's to say, what the "base" opacity of the node is.
- 
- For example, if you want to CCFadeOut from half-opacity of the node, originalOpacity_ should be set to 127 BEFORE the fade out is called.
- */
-@property(nonatomic, assign) GLbyte originalOpacity;
 
 @end

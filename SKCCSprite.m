@@ -195,7 +195,6 @@ SK_MAKE_SINGLETON(SKSpriteManager, sharedSpriteManager)
 		_inputEnabled = YES;
 		_textureFilename = nil;
 		_config = nil;
-		_grayscaleMode = NO;
 		_lastUsedAnimation = nil;
 		_spritesheetPrefix = nil;
 //#if IS_iOS
@@ -203,7 +202,6 @@ SK_MAKE_SINGLETON(SKSpriteManager, sharedSpriteManager)
 //#endif
 		_runningAnimations = [[NSMutableDictionary alloc] initWithCapacity:2];
 		_runningAnimationsBasedOnSpeed = [NSMutableArray arrayWithCapacity:2];
-		_originalOpacity = -1;
 		
 		_loaders = [NSMutableArray arrayWithCapacity:10];
 	}
@@ -544,9 +542,8 @@ SK_MAKE_SINGLETON(SKSpriteManager, sharedSpriteManager)
 		return;
 	}
 	NSString *animationName = [self.textureFilename stringByAppendingFormat:@":%@", name];
-	if(self.grayscaleMode) {
-		animationName = [animationName stringByAppendingString:@":grayscale"];
-	}
+
+	
 	CCAnimation *animation = [[CCAnimationCache sharedAnimationCache] animationByName:animationName];
 	//NSLog(@"animation: %@", animationName);
 	
@@ -701,34 +698,7 @@ SK_MAKE_SINGLETON(SKSpriteManager, sharedSpriteManager)
 	[self runAction:finalAnimation];
 	[animate update:0]; //to prevent flicker
 }
--(void) setOpacity:(GLubyte)opacity {
-	if(self.originalOpacity != -1) {
-		opacity = OPACITY(REVERSEOPACITY(self.originalOpacity) * REVERSEOPACITY(opacity));
-	}
-	[super setOpacity:opacity];
-	if(self.opacityPropogates) {
-		for(SKCCSprite *child in self.children) {
-			if([child respondsToSelector:@selector(setOpacity:)]) {
-				if([child respondsToSelector:@selector(originalOpacity)] && child.originalOpacity != -1) {
-					[child setOpacity:OPACITY(REVERSEOPACITY(child.originalOpacity) * REVERSEOPACITY(opacity))];
-				} else {
-					[child setOpacity:opacity];
-				}
-			}
-			if(![child respondsToSelector:@selector(opacityPropogates)]) {
-				for(SKCCSprite *innerChild in child.children) {
-					if([innerChild respondsToSelector:@selector(setOpacity:)]) {
-						if([innerChild respondsToSelector:@selector(originalOpacity)] && innerChild.originalOpacity != -1) {
-							[innerChild setOpacity:OPACITY(REVERSEOPACITY(innerChild.originalOpacity) * REVERSEOPACITY(opacity))];
-						} else {
-							[innerChild setOpacity:opacity];
-						}
-					}
-				}
-			}
-		}
-	}
-}
+
 //#if IS_iOS
 -(void) addObserverForName:(NSString *)name object:(id)object queue:(NSOperationQueue *)queue usingBlock:(void (^)(NSNotification *notification))block {
 	id observer = [(NSNotificationCenter *)[NSNotificationCenter defaultCenter] addObserverForName:name object:object queue:queue usingBlock:block];

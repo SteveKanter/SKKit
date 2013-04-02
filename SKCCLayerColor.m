@@ -13,45 +13,14 @@
 	__strong NSMutableArray *observers_;
 #endif
 }
-@synthesize opacityPropogates=opacityPropogates_, originalOpacity=originalOpacity_;
 
 -(id) init {
 	if( (self = [super init]) ) {
-		self.opacityPropogates = NO;
-		self.originalOpacity = 255;
 #if IS_iOS
 		observers_ = [NSMutableArray arrayWithCapacity:3];
 #endif
 	}
 	return self;
-}
--(void) setOpacity:(GLubyte)opacity {
-	if(self.originalOpacity != -1) {
-		opacity = OPACITY(REVERSEOPACITY(self.originalOpacity) * REVERSEOPACITY(opacity));
-	}
-	if(self.opacityPropogates) {
-		for(SKCCSprite *child in self.children) {
-			if([child respondsToSelector:@selector(setOpacity:)]) {
-				if([child respondsToSelector:@selector(originalOpacity)] && child.originalOpacity != -1) {
-					[child setOpacity:OPACITY(REVERSEOPACITY(child.originalOpacity) * REVERSEOPACITY(opacity))];
-				} else {
-					[child setOpacity:opacity];
-				}
-			}
-			if(![child respondsToSelector:@selector(opacityPropogates)]) {
-				for(SKCCSprite *innerChild in child.children) {
-					if([innerChild respondsToSelector:@selector(setOpacity:)]) {
-						if([innerChild respondsToSelector:@selector(originalOpacity)] && innerChild.originalOpacity != -1) {
-							[innerChild setOpacity:OPACITY(REVERSEOPACITY(innerChild.originalOpacity) * REVERSEOPACITY(opacity))];
-						} else {
-							[innerChild setOpacity:opacity];
-						}
-					}
-				}
-			}
-		}
-	}
-	[super setOpacity:opacity];
 }
 -(void) onExit {
 	[[SKInputManager sharedInputManager] removeHandler:self];
