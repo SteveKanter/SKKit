@@ -166,6 +166,10 @@ NSString *_osxVersion() {
 -(CGRect) frameIgnoringSelf:(BOOL)ignoringSelf;
 -(CGRect) frame;
 
+/// Integration points for subclasses to hide views before frame is taken.
+-(void) prepareForFrameOfSelf;
+-(void) endFrameOfSelf;
+
 /** Run the specified block after the provided delay.  Runs a sequence with a delay then CCCallBlock on the reciever.
  @param block block to be called
  @param delay delay to wait before calling block

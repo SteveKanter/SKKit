@@ -225,6 +225,7 @@ SK_MAKE_SINGLETON(SKUtilities, sharedUtilities)
 -(CGRect) frameIgnoringSelf:(BOOL)ignoringSelf {
 	
 	NSMutableArray *stack = [NSMutableArray new];
+	NSMutableArray *stackToEnd = [NSMutableArray new];
 	
 	CGRect selfBoundingBox = [self boundingBox];
 	
@@ -240,9 +241,13 @@ SK_MAKE_SINGLETON(SKUtilities, sharedUtilities)
 	while ([stack count] > 0)
 	{
 		__strong CCNode *node = [stack lastObject];
+		
+		[stackToEnd addObject:node];
 		[stack removeLastObject];
 		
 		if(!node.visible) continue;
+		
+		[node prepareForFrameOfSelf];
 		
 		CGRect bb = [self boundingBoxConvertedToNodeSpace:node];
 		float nodeleftmost = bb.origin.x;
@@ -267,11 +272,25 @@ SK_MAKE_SINGLETON(SKUtilities, sharedUtilities)
 		{
 			[stack addObject:child];
 		}
+		
+		
 		node = nil;
 	}
+	
+	for(CCNode *item in stackToEnd) {
+		[item endFrameOfSelf];
+	}
+	
 	float width = rightmost - leftmost;
 	float height = highest - lowest;
 	return CGRectMake(leftmost,lowest,width,height);
+}
+
+-(void) prepareForFrameOfSelf {
+	// no default implementation
+}
+-(void) endFrameOfSelf {
+	// no default implementation
 }
 
 -(CGRect) frame {
