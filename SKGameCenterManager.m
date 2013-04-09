@@ -111,21 +111,29 @@ SK_MAKE_SINGLETON(SKGameCenterManager, sharedGameCenterManager)
 		leaderboard.category = board;
 		leaderboard.leaderboardDelegate = self;
 		leaderboard.timeScope = GKLeaderboardTimeScopeToday;
+#ifdef COCOCS2D_VERSION
 		[[(SKCCDirector *)[CCDirector sharedDirector] rootViewController] presentModalViewController:leaderboard animated:YES];
+#endif
 	}];
 }
 -(void) leaderboardViewControllerDidFinish:(GKLeaderboardViewController *)viewController {
+#ifdef COCOCS2D_VERSION
 	[[(SKCCDirector *)[CCDirector sharedDirector] rootViewController] dismissModalViewControllerAnimated:YES];
+#endif
 }
 -(void) showAchievements {
 	[self doIfAuthenticatedElsePromptForAuthentication:^{
 		GKAchievementViewController *vc = [[GKAchievementViewController alloc] init];
 		vc.achievementDelegate = self;
+#ifdef COCOCS2D_VERSION
 		[[(SKCCDirector *)[CCDirector sharedDirector] rootViewController] presentModalViewController:vc animated:YES];
+#endif
 	}];
 }
 -(void) achievementViewControllerDidFinish:(GKAchievementViewController *)viewController {
+#ifdef COCOCS2D_VERSION
 	[[(SKCCDirector *)[CCDirector sharedDirector] rootViewController] dismissModalViewControllerAnimated:YES];
+#endif
 }
 -(void) dump {
 	self.holderBlock = nil;

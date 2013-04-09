@@ -8,6 +8,8 @@
 
 #import "SKCCDirector.h"
 
+#ifdef COCOS2D_VERSION
+
 @interface CCDirectorDisplayLink ()
 //-(void) threadMainLoop;
 -(void) calculateDeltaTime;
@@ -105,3 +107,5 @@
 }
 
 @end
+
+#endif

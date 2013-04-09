@@ -70,10 +70,10 @@ SK_MAKE_SINGLETON(SKUtilities, sharedUtilities)
 
 +(BOOL) intersectsEllipse:(SKEllipse)ellipse andRect:(CGRect)rect {
 	// TODO: Add line-ellipse intersection for edge cases
-	if (([self ellipse:ellipse containsPoint:ccp(rect.origin.x, rect.origin.y)]) ||
-		([self ellipse:ellipse containsPoint:ccp(rect.origin.x+rect.size.width, rect.origin.y)]) ||
-		([self ellipse:ellipse containsPoint:ccp(rect.origin.x, rect.origin.y+rect.size.height)]) ||
-		([self ellipse:ellipse containsPoint:ccp(rect.origin.x+rect.size.width, rect.origin.y+rect.size.height)]))
+	if (([self ellipse:ellipse containsPoint:CGPointMake(rect.origin.x, rect.origin.y)]) ||
+		([self ellipse:ellipse containsPoint:CGPointMake(rect.origin.x+rect.size.width, rect.origin.y)]) ||
+		([self ellipse:ellipse containsPoint:CGPointMake(rect.origin.x, rect.origin.y+rect.size.height)]) ||
+		([self ellipse:ellipse containsPoint:CGPointMake(rect.origin.x+rect.size.width, rect.origin.y+rect.size.height)]))
 		return YES;
 	return NO;
 }
@@ -115,15 +115,14 @@ SK_MAKE_SINGLETON(SKUtilities, sharedUtilities)
 	// Consider the line extending the segment, parameterized as start + t (end - start).
 	// We find projection of point onto the line. 
 	// It falls where t = [(point-start) . (end-start)] / |end-start|^2
-	float t = [self dotProductOf:ccp(point.x - start.x, point.y - start.y) and:ccp(end.x - start.x, end.y - start.y)] / lengthSquared;
+	float t = [self dotProductOf:CGPointMake(point.x - start.x, point.y - start.y) and:CGPointMake(end.x - start.x, end.y - start.y)] / lengthSquared;
 	if (t < 0.f)
 		return [self distanceBetween:point and:start];
 	else if (t > 1.f)
 		return [self distanceBetween:point and:end];
-	CGPoint projection = ccp(start.x + (t * (end.x - start.x)), start.y + (t * (end.y - start.y)));
+	CGPoint projection = CGPointMake(start.x + (t * (end.x - start.x)), start.y + (t * (end.y - start.y)));
 	return [self distanceBetween:point and:projection];
 }
-
 
 // no sense rewriting the wheel / lazy / time crunched. www.musicalgeometry.com/?p=1197
 +(NSArray *) splitString:(NSString*)str maxCharacters:(NSInteger)maxLength {
@@ -158,6 +157,8 @@ SK_MAKE_SINGLETON(SKUtilities, sharedUtilities)
 }
 
 @end
+
+#ifdef COCOS2D_VERSION
 
 @implementation CCNode (SKKitUtilitiesAdditions)
 -(CCAction *) runBlock:(SKKitBlock)block afterDelay:(NSTimeInterval)delay repeat:(int)repeatAmount {
@@ -320,6 +321,8 @@ SK_MAKE_SINGLETON(SKUtilities, sharedUtilities)
 
 @end
 
+
+#endif
 
 @implementation NSString(MD5)
 -(NSString*) MD5 {

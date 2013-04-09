@@ -158,6 +158,8 @@ NSString *_osxVersion() {
 -(void) performSelector:(SEL)aSelector afterDelay:(NSTimeInterval)delay;
 @end
 
+#ifdef COCOS2D_VERSION
+
 /** Random convenience methods to be added to all cocos2d nodes. */
 @interface CCNode (SKKitUtilitiesAdditions)
 
@@ -190,6 +192,8 @@ NSString *_osxVersion() {
 
 @property(nonatomic, readonly) int highestZOrder;
 @end
+
+#endif
 
 
 // See mobiledevelopertips.com/core-services/create-md5-hash-from-nsstring-nsdata-or-file.html

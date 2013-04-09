@@ -6,6 +6,8 @@
 //  Copyright (c) 2011 Steve Kanter. All rights reserved.
 //
 
+#ifdef COCOS2D_VERSION
+
 #import "SKCCLayer.h"
 
 @implementation SKCCLayer {
@@ -128,3 +130,5 @@
 }
 
 @end
+
+#endif

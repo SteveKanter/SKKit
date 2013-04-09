@@ -7,7 +7,10 @@
 //
 
 #import <Foundation/Foundation.h>
+
+#ifdef COCOCS2D_VERSION
 #import "cocos2d.h"
+#endif
 
 NSString *SKFilename(NSString *f, NSString *e, NSString *s) {return [NSString stringWithFormat:@"%@%@.%@", f,s,e];}
 BOOL SKFileExistsInTexturePack(NSString *file, NSString *pack) {
@@ -53,10 +56,11 @@ BOOL isIpad() {return NO;}
 BOOL isRetina() {return [[SKUtilities sharedUtilities] isRetina];}
 BOOL is4InchDevice() {return [[SKUtilities sharedUtilities] is4InchDevice];}
 
+#ifdef COCOCS2D_VERSION
+
 NSString* SKGetiPadExtension() {return (CC_CONTENT_SCALE_FACTOR() == 2 ? @"" : @"-hd");}
 NSString* SKGetiPadDeviceExtension() {return (CC_CONTENT_SCALE_FACTOR() == 2 ? @"" : @"~iPad");}
 NSString* SKGetRetinaExtension() {return (isIpad() ? @"-iPadHD" : @"-hd");}
-
 
 CGFloat SKScaleForPlatform(CGFloat num) {return isIpadReturn(num * 2, num);}
 CGFloat SKScale(CGFloat num) {return SKScaleForPlatform(num);}
@@ -122,5 +126,6 @@ CGSize SKCGSizeFromString(NSString *sizeString) {return NSSizeToCGSize(NSSizeFro
 }
 @end
 
+#endif
 #endif
 #endif

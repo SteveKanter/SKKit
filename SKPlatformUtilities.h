@@ -60,8 +60,12 @@ NSString *SKFileFromTexturePack(NSString *file, NSString *pack);
 @end
 #endif
 
+#ifdef COCOS2D_VERSION
+
 /** Additions to all CCNode objects */
 @interface CCNode (SKKitAdditions)
 /** Make boundingBox a property instead of getter/setter methods only. */
 @property(nonatomic,readonly) CGRect boundingBox;
 @end
+
+#endif
