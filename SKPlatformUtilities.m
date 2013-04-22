@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-#ifdef COCOCS2D_VERSION
+#if COCOCS2D_VERSION || FORCE_COCOCS2D
 #import "cocos2d.h"
 #endif
 
@@ -46,6 +46,10 @@ NSString *SKFileFromTexturePack(NSString *file, NSString *pack) {
 	}
 	return [NSString stringWithFormat:@"TexturePacks/Default/%@",file];
 }
+
+
+#if COCOCS2D_VERSION || FORCE_COCOCS2D
+
 #if IS_iOS
 #import <UIKit/UIKit.h>
 #ifdef UI_USER_INTERFACE_IDIOM
@@ -56,7 +60,6 @@ BOOL isIpad() {return NO;}
 BOOL isRetina() {return [[SKUtilities sharedUtilities] isRetina];}
 BOOL is4InchDevice() {return [[SKUtilities sharedUtilities] is4InchDevice];}
 
-#ifdef COCOCS2D_VERSION
 
 NSString* SKGetiPadExtension() {return (CC_CONTENT_SCALE_FACTOR() == 2 ? @"" : @"-hd");}
 NSString* SKGetiPadDeviceExtension() {return (CC_CONTENT_SCALE_FACTOR() == 2 ? @"" : @"~iPad");}
