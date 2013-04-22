@@ -343,7 +343,7 @@ SK_MAKE_SINGLETON(SKSpriteManager, sharedSpriteManager)
 #endif
 #if IS_Mac
 -(BOOL) skClickBegan:(NSEvent *)event {
-	if(!inputEnabled_ || !visible_) return NO;
+	if(!_inputEnabled || !_visible) return NO;
 	BOOL myClick = [self inputIsInBoundingBox:event];
 	if(myClick) {
 		CGPoint pos = [self inputPositionInOpenGLTerms:event];
