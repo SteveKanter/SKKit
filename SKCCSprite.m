@@ -6,6 +6,8 @@
 //  Copyright (c) 2011 Steve Kanter. All rights reserved.
 //
 
+#ifdef COCOS2D_VERSION
+
 #import "SKCCSprite.h"
 #import "SKKitDefines.h"
 
@@ -744,3 +746,5 @@ SK_MAKE_SINGLETON(SKSpriteManager, sharedSpriteManager)
 }
 
 @end
+
+#endif

@@ -6,6 +6,8 @@
 //  Copyright (c) 2011 Steve Kanter. All rights reserved.
 //
 
+#ifdef COCOS2D_VERSION
+
 #import "SKCCLayerColor.h"
 
 @implementation SKCCLayerColor {
@@ -122,3 +124,6 @@
 }
 #endif
 @end
+
+
+#endif

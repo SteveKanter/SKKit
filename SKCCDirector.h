@@ -6,6 +6,8 @@
 //
 //
 
+#ifdef COCOS2D_VERSION
+
 #import "CCDirectorIOS.h"
 
 /// A subclass of CCDirectorDisplayLink for now to override -[CCDirector startAnimation] this way we can animate while dragging a UIScrollView, as well as hold a reference to the rootViewController
@@ -14,3 +16,5 @@
 @property(nonatomic, readwrite, SK_PROP_WEAK) id rootViewController;
 
 @end
+
+#endif

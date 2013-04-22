@@ -6,6 +6,8 @@
 //  Copyright (c) 2011 Steve Kanter. All rights reserved.
 //
 
+#ifdef COCOS2D_VERSION
+
 /** SKCCLayerColor is the base class for all colored layers.  This class handles touches and clicks via SKInputManager. */
 @interface SKCCLayerColor : CCLayerColor
 /** Fade out ALL UIKit elements that are subviews of CCDirector's view and then call the block
@@ -29,3 +31,5 @@
 #endif
 
 @end
+
+#endif
