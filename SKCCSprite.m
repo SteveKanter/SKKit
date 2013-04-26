@@ -183,6 +183,10 @@ SK_MAKE_SINGLETON(SKSpriteManager, sharedSpriteManager)
 #if IS_iOS
 		finalFilename = [[CCFileUtils sharedFileUtils] removeSuffixFromFile:filename];
 #endif
+#if IS_Mac
+		finalFilename = [self removeSuffix:@"-hd" fromPath:filename];
+		finalFilename = [self removeSuffix:@"-iPadHD" fromPath:filename];
+#endif
 		// remove the path extension
 		finalFilename = [finalFilename stringByDeletingPathExtension];
 		// slap on the plist extension and BAM - we got a plist filename.
@@ -345,7 +349,7 @@ SK_MAKE_SINGLETON(SKSpriteManager, sharedSpriteManager)
 #endif
 #if IS_Mac
 -(BOOL) skClickBegan:(NSEvent *)event {
-	if(!_inputEnabled || !_visible) return NO;
+	if(!_inputEnabled || !self.visible) return NO;
 	BOOL myClick = [self inputIsInBoundingBox:event];
 	if(myClick) {
 		CGPoint pos = [self inputPositionInOpenGLTerms:event];
@@ -609,7 +613,7 @@ SK_MAKE_SINGLETON(SKSpriteManager, sharedSpriteManager)
 		NSMutableArray *frames = [NSMutableArray arrayWithCapacity:[frameIndexes count]];
 		
 		if(!_spritesheetPrefix) { // not from texturepacker
-			CCSpriteBatchNode *spriteSheet = [CCSpriteBatchNode batchNodeWithTexture:_texture];
+			CCSpriteBatchNode *spriteSheet = [CCSpriteBatchNode batchNodeWithTexture:self.texture];
 			CCTexture2D *animationTexture = spriteSheet.textureAtlas.texture;
 			CGRect baseRect = SKCGRectMake(0,0, [(self.config)[@"spriteWidth"] intValue], [(self.config)[@"spriteHeight"] intValue]);
 			for(NSNumber *frameNumber in frameIndexes) {

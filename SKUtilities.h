@@ -70,7 +70,7 @@ NS_INLINE SKEllipse SKEllipseMake(CGPoint location, CGSize radius) {
 	#define SYSTEM_VERSION_LESS_THAN_OR_EQUAL_TO(v)     ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedDescending)
 #elif IS_Mac
 
-NSString *_osxVersion() {	
+NS_INLINE NSString *_osxVersion() {
 	SInt32 major, minor, bugfix;
 	Gestalt(gestaltSystemVersionMajor, &major);
 	Gestalt(gestaltSystemVersionMinor, &minor);
