@@ -6,7 +6,7 @@
 //  Copyright (c) 2011 Steve Kanter. All rights reserved.
 //
 
-#ifdef COCOS2D_VERSION
+#if COCOS2D_VERSION || FORCE_COCOCS2D
 
 /// Posted when a nodes' animations should be sped up.  If the object is nil, any animation implementing SKCCSpriteAnimationOptionsRespondToSpeedNotifications will respond, otherwise the object should be the node.  The speed is defined as the "animationSpeed" key in the userInfo dictionary.
 extern NSString *const SKCCSpriteAnimationSpeedNotification;

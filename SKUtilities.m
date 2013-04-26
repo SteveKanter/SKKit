@@ -158,7 +158,7 @@ SK_MAKE_SINGLETON(SKUtilities, sharedUtilities)
 
 @end
 
-#ifdef COCOS2D_VERSION
+#if COCOS2D_VERSION || FORCE_COCOCS2D
 
 @implementation CCNode (SKKitUtilitiesAdditions)
 -(CCAction *) runBlock:(SKKitBlock)block afterDelay:(NSTimeInterval)delay repeat:(int)repeatAmount {

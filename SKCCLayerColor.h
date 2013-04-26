@@ -6,7 +6,7 @@
 //  Copyright (c) 2011 Steve Kanter. All rights reserved.
 //
 
-#ifdef COCOS2D_VERSION
+#if COCOS2D_VERSION || FORCE_COCOCS2D
 
 /** SKCCLayerColor is the base class for all colored layers.  This class handles touches and clicks via SKInputManager. */
 @interface SKCCLayerColor : CCLayerColor

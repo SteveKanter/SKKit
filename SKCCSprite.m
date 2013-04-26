@@ -6,7 +6,7 @@
 //  Copyright (c) 2011 Steve Kanter. All rights reserved.
 //
 
-#ifdef COCOS2D_VERSION
+#if COCOS2D_VERSION || FORCE_COCOCS2D
 
 #import "SKCCSprite.h"
 #import "SKKitDefines.h"

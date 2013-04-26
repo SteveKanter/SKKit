@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-#if COCOCS2D_VERSION || FORCE_COCOCS2D
+#if COCOS2D_VERSION || FORCE_COCOCS2D
 #import "cocos2d.h"
 #endif
 
@@ -48,7 +48,7 @@ NSString *SKFileFromTexturePack(NSString *file, NSString *pack) {
 }
 
 
-#if COCOCS2D_VERSION || FORCE_COCOCS2D
+#if COCOS2D_VERSION || FORCE_COCOCS2D
 
 #if IS_iOS
 #import <UIKit/UIKit.h>

@@ -60,7 +60,7 @@ NSString *SKFileFromTexturePack(NSString *file, NSString *pack);
 @end
 #endif
 
-#ifdef COCOS2D_VERSION
+#if COCOS2D_VERSION || FORCE_COCOCS2D
 
 /** Additions to all CCNode objects */
 @interface CCNode (SKKitAdditions)
