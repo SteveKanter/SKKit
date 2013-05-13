@@ -411,6 +411,11 @@ SK_MAKE_SINGLETON(SKSpriteManager, sharedSpriteManager)
 	SKInputManagerHandler *handler = [inputManager handlerObjectForNode:self];
 	[handler setMouseMovedBlock:block];
 }
+-(void) setRightClickMouseUpHandler:(SKInputHandlerBlock)block {
+	SKInputManager *inputManager = [SKInputManager sharedInputManager];
+	SKInputManagerHandler *handler = [inputManager handlerObjectForNode:self];
+	[handler setRightMouseUpBlock:block];
+}
 
 -(int) getSpriteSheetColumn:(int)frameNumber {
 	int numColumns = [(self.config)[@"numColumns"] intValue];

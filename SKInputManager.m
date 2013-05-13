@@ -216,6 +216,31 @@ SK_MAKE_SINGLETON(SKInputManager, sharedInputManager)
 	}
 #endif
 }
+-(void) rightMouseUpWithEvent:(id)event {
+	
+	if(!_inputEnabled) return;
+	
+	int hash = [self getHashFromInput:nil andEvent:event];
+	
+	if(![self claimedInput][@(hash)]) {
+		for(SKInputManagerHandler *handler in [self sortedHandlers]) {
+			id object = [handler nodeObject];
+			BOOL theyWantTheTouch = NO;
+			
+			if([object respondsToSelector:@selector(skClickBegan:)]) {
+				theyWantTheTouch = [object skClickBegan:event];
+			}
+			
+			if(theyWantTheTouch) {
+				if(handler.rightMouseUpBlock) {
+					handler.rightMouseUpBlock(object, [self getInputObjectFromInput:nil andEvent:event]);
+				}
+				break;
+			}
+		}
+	}
+	
+}
 -(BOOL) handlerIsRegistered:(id)theHandler {
 	return ([self handlerObjectForNode:theHandler] != nil);
 }

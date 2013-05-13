@@ -112,6 +112,12 @@ typedef enum {
  */
 -(void) setMouseMovedHandler:(SKInputHandlerBlock)block;
 
+/** Set a block to be called when the mouse right-click ups.
+ @param block block to be called.
+ @warning *Warning:* this is _*Mac Only*_.  Has no effect on iOS.
+ */
+-(void) setRightClickMouseUpHandler:(SKInputHandlerBlock)block;
+
 /** Called when input is started.
  @param position position of the input, in world space.
  */

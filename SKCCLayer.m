@@ -102,6 +102,11 @@
 	[[SKInputManager sharedInputManager] mouseMovedWithEvent:event];
 	return YES;
 }
+-(BOOL) ccRightMouseUp:(NSEvent *)event {
+	[[SKInputManager sharedInputManager] rightMouseUpWithEvent:event];
+	return YES;
+}
+
 -(BOOL) ccFlagsChanged:(NSEvent *)event {
 	return NO;
 }

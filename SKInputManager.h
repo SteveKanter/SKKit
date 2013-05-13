@@ -52,6 +52,10 @@
  @warning *Warning:* this is ONLY ever called *_on Mac_*.  It has no effect on iOS. */
 @property(nonatomic, readwrite, copy, setter=setMouseMovedBlock:) SKInputHandlerBlock mouseMovedBlock;
 
+/** The block to be called when the mouse right-click ends.
+ @warning *Warning:* this is ONLY ever called *_on Mac_*.  It has no effect on iOS. */
+@property(nonatomic, readwrite, copy, setter=setRightMouseUpBlock:) SKInputHandlerBlock rightMouseUpBlock;
+
 /** Call this to release and zero out all the properties on this handler object.
  @bug *Warning:*  do not call if the handler is still registered on the SKInputManager. */
 -(void) resetHandler;
@@ -98,6 +102,10 @@
  @warning *Warning* This is _*Mac Only*_.  This method has no effect on iOS
  @bug *Requires setting setAcceptsMouseMovedEvents: on the window.**/
 -(void) mouseMovedWithEvent:(id)event;
+/** Mouse right-click up events are sent to this method.  They are then sent to any handler that specifically requests to be told when the mouse moves.  There is no corresponding node call, only a block callback.  Generally, you don't call this method directly.  If using an SKCCLayer or a SKCCLayerColor, just set self.isMouseEnabled to YES.
+ @param event the NSEvent
+ @warning *Warning* This is _*Mac Only*_.  This method has no effect on iOS **/
+-(void) rightMouseUpWithEvent:(id)event;
 /** Whether or not the specified handler is registered with the input manager
  @param handler handler in question
  @returns whether or not the handler is registered */
