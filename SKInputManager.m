@@ -219,6 +219,7 @@ SK_MAKE_SINGLETON(SKInputManager, sharedInputManager)
 -(void) rightMouseUpWithEvent:(id)event {
 	
 	if(!_inputEnabled) return;
+#if IS_Mac
 	
 	int hash = [self getHashFromInput:nil andEvent:event];
 	
@@ -239,7 +240,7 @@ SK_MAKE_SINGLETON(SKInputManager, sharedInputManager)
 			}
 		}
 	}
-	
+#endif
 }
 -(BOOL) handlerIsRegistered:(id)theHandler {
 	return ([self handlerObjectForNode:theHandler] != nil);
