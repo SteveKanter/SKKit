@@ -701,7 +701,8 @@ SK_MAKE_SINGLETON(SKSpriteManager, sharedSpriteManager)
 										   two:[CCCallBlock actionWithBlock:^{
 				[self runAnimation:animationData[@"nextAnimation"]
 				   completionBlock:completionBlock
-						   options:options];
+						   options:options
+					 playbackSpeed:speed];
 		}]];
 	}
 	if(options & SKCCSpriteAnimationOptionsRespondToSpeedNotifications) {
