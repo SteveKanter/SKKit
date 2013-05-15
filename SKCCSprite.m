@@ -317,9 +317,18 @@ SK_MAKE_SINGLETON(SKSpriteManager, sharedSpriteManager)
 	return NO;
 }
 
+-(BOOL) inVisibleTree {
+	CCNode *parent = (id)self;
+	while(parent) {
+		if(!parent.visible) return NO;
+		parent = parent.parent;
+	}
+	return YES;
+}
+
 #if IS_iOS
 -(BOOL) skTouchBegan:(UITouch *)touch {
-	if(!_inputEnabled || !_visible) return NO;
+	if(!_inputEnabled || ![self inVisibleTree]) return NO;
 	BOOL myTouch = [self inputIsInBoundingBox:touch];
 	
 	if(myTouch) {
