@@ -8,24 +8,14 @@
 
 /** This object is the basic object that the SKInputManager class deals with.  For each object that is to be handled, one of these is created and used for input forwarding as well as prioritizing. */
 
-@interface SKInputManagerHandler : NSObject {
-@private
-	id nodeObject;
-	int priority;
-	SKInputHandlerBlock inputBeganBlock;
-	SKInputHandlerBlock inputMovedBlock;
-	SKInputHandlerBlock inputEndedBlock;
-	SKInputHandlerBlock inputCancelledBlock;
-	
-	SKInputHandlerBlock mouseMovedBlock;
-}
+@interface SKInputManagerHandler : NSObject
 
 /**
  @name Required Properties
  */
 
 /** The object which is being handled, such as the "button" object. */
-@property(nonatomic, readwrite, strong) id nodeObject;
+@property(nonatomic, readwrite, weak) id nodeObject;
 
 /** The priority of the object to get the input.  Higher priority is pinged first as to whether or not they want the input. */
 @property(nonatomic, readwrite, assign) int priority;
@@ -47,6 +37,9 @@
 /** The block to be called when input cancelles.
  @warning *Note:* if set, this block is called as WELL as the input methods on the object. */
 @property(nonatomic, readwrite, copy, setter=setInputCancelledBlock:) SKInputHandlerBlock inputCancelledBlock;
+
+/** The block to be called when after valid input is found on this object, a new input object is found to work on another. */
+@property(nonatomic, readwrite, copy, setter=setInputBeganOutsideBlock:) SKInputHandlerBlock inputBeganOutsideBlock;
 
 /** The block to be called when the mouse moves.  Set a block here and you will be called every time the mouse moves.
  @warning *Warning:* this is ONLY ever called *_on Mac_*.  It has no effect on iOS. */
@@ -114,6 +107,9 @@
  @param node node to get the handler for
  @returns the handler object created for this node */
 -(SKInputManagerHandler *) handlerObjectForNode:(id)node;
+
+/** A UIScrollViewDelegate lets SKInputManager know that the view is scrolling, so it can appropriately send inputBeganOutside messages. */
+-(void) scrollViewTriggerSendInputBeganOutside;
 
 
 @property(nonatomic, readwrite) BOOL inputEnabled;

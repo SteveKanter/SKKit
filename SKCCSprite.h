@@ -101,6 +101,10 @@ typedef enum {
  @param block block to be called.
  */
 -(void) setInputEndedHandler:(SKInputHandlerBlock)block;
+/** Set a block to be called when after valid input is found on this object, a new input object is found to work on another.
+ @param block block to be called.
+ */
+-(void) setInputBeganOutsideHandler:(SKInputHandlerBlock)block;
 /** Set a block to be called when a valid input cancelles on the object.
  @param block block to be called.
  */

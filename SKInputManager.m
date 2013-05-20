@@ -12,6 +12,7 @@
 	NSMutableArray *handlers;
 	NSMutableArray *sortedHandlers;
 	NSMutableDictionary *claimedInput;
+	NSMutableArray *handlersWaitingOtherInput;
 }
 /** Objects that are registered as handlers of touches and clicks.  Each object of the array is an instance of SKInputManagerHandler. **/
 @property(nonatomic, readwrite, strong) NSMutableArray *handlers;
@@ -19,12 +20,15 @@
 @property(nonatomic, readwrite, strong) NSMutableArray *sortedHandlers;
 /** Key is the hash of the touch or event with the object being the handler object. **/
 @property(nonatomic, readwrite, strong) NSMutableDictionary *claimedInput;
+/** An array of handlers which are no longer currently responding to input, but had and are awaiting "other input" to call their block. */
+@property(nonatomic, readwrite, strong) NSMutableArray *handlersWaitingOtherInput;
+
 @end
 
 @implementation SKInputManager
 SK_MAKE_SINGLETON(SKInputManager, sharedInputManager)
 
-@synthesize handlers, sortedHandlers, claimedInput, disableReSortingOfHandlers;
+@synthesize handlers, sortedHandlers, claimedInput, disableReSortingOfHandlers, handlersWaitingOtherInput;
 
 -(id) init {
 	if( (self = [super init]) ) {
@@ -32,6 +36,7 @@ SK_MAKE_SINGLETON(SKInputManager, sharedInputManager)
 		self.handlers = [NSMutableArray arrayWithCapacity:10];
 		self.sortedHandlers = [NSMutableArray arrayWithCapacity:10];
 		self.claimedInput = [NSMutableDictionary dictionaryWithCapacity:10];
+		self.handlersWaitingOtherInput = [NSMutableArray arrayWithCapacity:10];
 	}
 	return self;
 }
@@ -51,6 +56,13 @@ SK_MAKE_SINGLETON(SKInputManager, sharedInputManager)
 	[self setSortedHandlers:[[self handlers] mutableCopy]];
 	NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"priority" ascending:NO];
 	[[self sortedHandlers] sortUsingDescriptors:@[sortDescriptor]];
+	
+	for(SKInputManagerHandler *handler in [[self handlersWaitingOtherInput] copy]) {
+		if(![[self handlers] containsObject:handler]) {
+			[[self handlersWaitingOtherInput] removeObject:handler];
+		}
+	}
+	
 }
 -(void) removeHandler:(id)node {
 	SKInputManagerHandler *handler = [self handlerObjectForNode:node];
@@ -113,6 +125,9 @@ SK_MAKE_SINGLETON(SKInputManager, sharedInputManager)
 	
 	int hash = [self getHashFromInput:input andEvent:event];
 	if(![self claimedInput][@(hash)]) {
+		
+		NSMutableArray *ignoring = [@[] mutableCopy];
+		
 		for(SKInputManagerHandler *handler in [self sortedHandlers]) {
 			id object = [handler nodeObject];
 			BOOL theyWantTheTouch = NO;
@@ -130,9 +145,15 @@ SK_MAKE_SINGLETON(SKInputManager, sharedInputManager)
 				if(handler.inputBeganBlock) {
 					handler.inputBeganBlock(object, [self getInputObjectFromInput:input andEvent:event]);
 				}
+				
+				[ignoring addObject:handler];
+				
 				break;
 			}
 		}
+		
+		[self triggerInputBeganOutsideIgnoring:ignoring];
+
 	}
 }
 -(void) inputMoved:(id)input withEvent:(id)event {
@@ -178,6 +199,7 @@ SK_MAKE_SINGLETON(SKInputManager, sharedInputManager)
 			handler.inputEndedBlock(object, [self getInputObjectFromInput:input andEvent:event]);
 		}
 		[[self claimedInput] removeObjectForKey:@(hash)];
+		[[self handlersWaitingOtherInput] addObject:handler];
 	}
 }
 -(void) inputCancelled:(id)input withEvent:(id)event {
@@ -245,16 +267,27 @@ SK_MAKE_SINGLETON(SKInputManager, sharedInputManager)
 -(BOOL) handlerIsRegistered:(id)theHandler {
 	return ([self handlerObjectForNode:theHandler] != nil);
 }
+
+-(void) triggerInputBeganOutsideIgnoring:(NSArray *)ignoring {
+	
+	for(SKInputManagerHandler *handler in [self handlersWaitingOtherInput]) {
+		if([[self handlers] containsObject:handler] && ![ignoring containsObject:handler] && handler.inputBeganOutsideBlock) {
+			handler.inputBeganOutsideBlock(handler.nodeObject, nil);
+		}
+	}
+	
+	[[self handlersWaitingOtherInput] removeAllObjects];
+	
+}
+
+-(void) scrollViewTriggerSendInputBeganOutside {
+	
+	[self triggerInputBeganOutsideIgnoring:@[]];
+}
+
 @end
 
 @implementation SKInputManagerHandler
-@synthesize nodeObject;
-@synthesize priority;
-@synthesize inputBeganBlock;
-@synthesize inputMovedBlock;
-@synthesize inputEndedBlock;
-@synthesize inputCancelledBlock;
-@synthesize mouseMovedBlock;
 
 
 -(void) resetHandler {
