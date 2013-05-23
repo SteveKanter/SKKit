@@ -15,7 +15,7 @@
  */
 
 /** The object which is being handled, such as the "button" object. */
-@property(nonatomic, readwrite, weak) id nodeObject;
+@property(nonatomic, readwrite, SK_PROP_WEAK) id nodeObject;
 
 /** The priority of the object to get the input.  Higher priority is pinged first as to whether or not they want the input. */
 @property(nonatomic, readwrite, assign) int priority;
