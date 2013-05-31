@@ -725,6 +725,42 @@ SK_MAKE_SINGLETON(SKSpriteManager, sharedSpriteManager)
 	[animate update:0]; //to prevent flicker
 }
 
+-(float) animationDurationForAnimation:(NSString *)name validValue:(BOOL *)valid {
+	
+	NSDictionary *animationData = [self config][@"animations"][name];
+	if(!animationData) return 0.f;
+		
+	NSMutableArray *frameIndexes = animationData[@"frames"];
+	
+	if(animationData[@"frameRange"]) {
+		NSArray *array = [animationData[@"frameRange"] componentsSeparatedByString:@"-"];
+		if([array count] == 2) {
+			int startIndex = [array[0] intValue];
+			int endIndex = [array[1] intValue];
+			frameIndexes = [NSMutableArray arrayWithCapacity:endIndex - startIndex + 1];
+			for(int i = startIndex; i <= endIndex; i++) {
+				[frameIndexes addObject:@(i)];
+			}
+		} else if([array count] == 1) {
+			frameIndexes = [NSMutableArray arrayWithCapacity:1];
+			[frameIndexes addObject:@([array[0] intValue])];
+		}
+	}
+	
+	
+	int repeat = [animationData[@"repeat"] intValue];
+	float timePerFrame = [animationData[@"timePerFrame"] floatValue];
+	int numberOfFrames = [frameIndexes count];
+	if(repeat == -1) {
+		*valid = NO;
+		return MAXFLOAT;
+	}
+	
+	*valid = YES;
+	return (timePerFrame * numberOfFrames * (repeat + 1));
+	
+}
+
 //#if IS_iOS
 -(void) addObserverForName:(NSString *)name object:(id)object queue:(NSOperationQueue *)queue usingBlock:(void (^)(NSNotification *notification))block {
 	id observer = [(NSNotificationCenter *)[NSNotificationCenter defaultCenter] addObserverForName:name object:object queue:queue usingBlock:block];

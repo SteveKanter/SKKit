@@ -187,7 +187,12 @@ typedef enum {
 
 -(NSString *) animationNameForKey:(int)animationKey fromGroupWithKey:(int)animationGroupKey;
 
+/** If valid value is NO, don't rely on the return value from this method - this happens when the animation repeats forever, for example. */
+-(float) animationDurationForAnimation:(NSString *)name validValue:(BOOL *)valid;
+
+
 -(NSArray *) allChildrenInNodeTreeIncludingSelf:(BOOL)includeSelf;
+
 
 @end
 
