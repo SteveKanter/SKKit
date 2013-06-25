@@ -51,38 +51,87 @@ NSString *const SKCCSpriteAnimationSpeedNotification = @"SKCCSpriteAnimationSpee
 @end
 
 
-/** A private class to SKCCSprite for maintaining a list of cached config files. */
-@interface SKSpriteManager : SKSingleton {
-	NSMutableDictionary *configs_;
+@implementation SKSpriteManager {
+	__strong NSMutableDictionary *_configs;
 }
-+(SKSpriteManager *) sharedSpriteManager;
--(NSDictionary *) getConfigByFilename:(NSString *)filename;
-@end
-
-@implementation SKSpriteManager
 SK_MAKE_SINGLETON(SKSpriteManager, sharedSpriteManager)
 -(id) init {
 	if( (self = [super init]) ) {
-		configs_ = [[NSMutableDictionary alloc] initWithCapacity:10];
+		_configs = [[NSMutableDictionary alloc] initWithCapacity:10];
 	}
 	return self;
 }
+
+-(NSString *) realFilenameForFilename:(NSString *)filename {
+	
+	// see if the file with whatever suffix is already on it exists.
+	
+	NSString *finalFilename = nil;
+	NSString *testFilename = [[filename stringByDeletingPathExtension] stringByAppendingPathExtension:@"plist"];
+	BOOL found = NO;
+	if([[NSFileManager defaultManager] fileExistsAtPath:testFilename]) {
+		finalFilename = testFilename;
+		found = YES;
+	}
+	if(!found && [[NSFileManager defaultManager] fileExistsAtPath:RESOURCEFILE(testFilename)]) {
+		finalFilename = testFilename;
+		found = YES;
+	}
+	if(!found) {
+		// strip off the suffix, and then try adding on the default suffix for the current mode.
+#if IS_iOS
+		testFilename = [[CCFileUtils sharedFileUtils] removeSuffixFromFile:filename];
+#endif
+#if IS_Mac
+		testFilename = [self removeSuffix:@"-hd" fromPath:testFilename];
+		testFilename = [self removeSuffix:@"-iPadHD" fromPath:testFilename];
+#endif
+		// turn the relative into an absolute, to see if having the suffix helps.
+		testFilename = [[CCFileUtils sharedFileUtils] fullPathForFilename:testFilename];
+		// remove the path extension
+		testFilename = [testFilename stringByDeletingPathExtension];
+		// slap on the plist extension and BAM - we got a plist filename.
+		testFilename = [testFilename stringByAppendingPathExtension:@"plist"];
+		if([[NSFileManager defaultManager] fileExistsAtPath:testFilename]) {
+			finalFilename = testFilename;
+			found = YES;
+		}
+	}
+	if(!found) {
+#if IS_iOS
+		finalFilename = [[CCFileUtils sharedFileUtils] removeSuffixFromFile:filename];
+#endif
+#if IS_Mac
+		finalFilename = [self removeSuffix:@"-hd" fromPath:filename];
+		finalFilename = [self removeSuffix:@"-iPadHD" fromPath:filename];
+#endif
+		// remove the path extension
+		finalFilename = [finalFilename stringByDeletingPathExtension];
+		// slap on the plist extension and BAM - we got a plist filename.
+		finalFilename = [finalFilename stringByAppendingPathExtension:@"plist"];
+		found = YES;
+		// default to NO extension.
+	}
+	
+	return finalFilename;
+}
+
 -(NSDictionary *) getConfigByFilename:(NSString *)filename {
-	NSDictionary *config = configs_[filename];
+	NSDictionary *config = _configs[filename];
 	if(!config) {
-		NSString *file = filename;
-		if(![filename isAbsolutePath]) {
-			file = [[CCFileUtils sharedFileUtils] fullPathForFilename:filename];
+		NSString *file = [self realFilenameForFilename:filename];
+		if(![file isAbsolutePath]) {
+			file = [[CCFileUtils sharedFileUtils] fullPathForFilename:file];
 		}
 		config = [NSDictionary dictionaryWithContentsOfFile:file];
 		if(config) {
-			configs_[filename] = config;
+			_configs[filename] = config;
 		}
 	}
 	return config;
 }
 -(void) dealloc {
-	configs_ = nil;
+	_configs = nil;
 #if !__has_feature(objc_arc)
 	[super dealloc];
 #endif
@@ -145,56 +194,8 @@ SK_MAKE_SINGLETON(SKSpriteManager, sharedSpriteManager)
 #endif
 
 -(void) setupConfigWithFilename:(NSString *)filename {
-	
-	// see if the file with whatever suffix is already on it exists.
-	
-	NSString *finalFilename = nil;
-	NSString *testFilename = [[filename stringByDeletingPathExtension] stringByAppendingPathExtension:@"plist"];
-	BOOL found = NO;
-	if([[NSFileManager defaultManager] fileExistsAtPath:testFilename]) {
-		finalFilename = testFilename;
-		found = YES;
-	}
-	if(!found && [[NSFileManager defaultManager] fileExistsAtPath:RESOURCEFILE(testFilename)]) {
-		finalFilename = testFilename;
-		found = YES;
-	}
-	if(!found) {
-		// strip off the suffix, and then try adding on the default suffix for the current mode.
-#if IS_iOS
-		testFilename = [[CCFileUtils sharedFileUtils] removeSuffixFromFile:filename];
-#endif
-#if IS_Mac
-		testFilename = [self removeSuffix:@"-hd" fromPath:testFilename];
-		testFilename = [self removeSuffix:@"-iPadHD" fromPath:testFilename];
-#endif
-		// turn the relative into an absolute, to see if having the suffix helps.
-		testFilename = [[CCFileUtils sharedFileUtils] fullPathForFilename:testFilename];
-		// remove the path extension
-		testFilename = [testFilename stringByDeletingPathExtension];
-		// slap on the plist extension and BAM - we got a plist filename.
-		testFilename = [testFilename stringByAppendingPathExtension:@"plist"];
-		if([[NSFileManager defaultManager] fileExistsAtPath:testFilename]) {
-			finalFilename = testFilename;
-			found = YES;
-		}
-	}
-	if(!found) {
-#if IS_iOS
-		finalFilename = [[CCFileUtils sharedFileUtils] removeSuffixFromFile:filename];
-#endif
-#if IS_Mac
-		finalFilename = [self removeSuffix:@"-hd" fromPath:filename];
-		finalFilename = [self removeSuffix:@"-iPadHD" fromPath:filename];
-#endif
-		// remove the path extension
-		finalFilename = [finalFilename stringByDeletingPathExtension];
-		// slap on the plist extension and BAM - we got a plist filename.
-		finalFilename = [finalFilename stringByAppendingPathExtension:@"plist"];
-		found = YES;
-		// default to NO extension.
-	}
-	_config = [[SKSpriteManager sharedSpriteManager] getConfigByFilename:finalFilename];
+	// we pass the filename that we're given into the shared sprite manager - this way, it deals with loading the *real* filename, while further cache loads are by the initial.  may cause duplicate data, but should improve config loading performance.
+	_config = [[SKSpriteManager sharedSpriteManager] getConfigByFilename:filename];
 }
 -(id) initWithTexture:(CCTexture2D *)texture rect:(CGRect)rect rotated:(BOOL)rotated {
 	if( (self = [super initWithTexture:texture rect:rect rotated:rotated]) ) {

@@ -196,4 +196,11 @@ typedef enum {
 
 @end
 
+/** A class used only by SKCCSprite and its subclasses for maintaining a list of cached config files. */
+@interface SKSpriteManager : SKSingleton
+
++(SKSpriteManager *) sharedSpriteManager;
+-(NSDictionary *) getConfigByFilename:(NSString *)filename;
+@end
+
 #endif
