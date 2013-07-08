@@ -62,6 +62,29 @@ SK_MAKE_SINGLETON(SKSpriteManager, sharedSpriteManager)
 	return self;
 }
 
+
+#if IS_Mac
+-(NSString *) removeSuffix:(NSString*)suffix fromPath:(NSString*)path {
+	// quick return
+	if( ! suffix || [suffix length] == 0 )
+		return path;
+	
+	NSString *name = [path lastPathComponent];
+	
+	// check if path already has the suffix.
+	if( [name rangeOfString:suffix].location != NSNotFound ) {
+		
+		NSString *newLastname = [name stringByReplacingOccurrencesOfString:suffix withString:@""];
+		
+		NSString *pathWithoutLastname = [path stringByDeletingLastPathComponent];
+		return [pathWithoutLastname stringByAppendingPathComponent:newLastname];
+	}
+	
+	// suffix was not removed
+	return path;
+}
+#endif
+
 -(NSString *) realFilenameForFilename:(NSString *)filename {
 	
 	// see if the file with whatever suffix is already on it exists.
@@ -171,27 +194,6 @@ SK_MAKE_SINGLETON(SKSpriteManager, sharedSpriteManager)
 #endif
 }
 
-#if IS_Mac
--(NSString *) removeSuffix:(NSString*)suffix fromPath:(NSString*)path {
-	// quick return
-	if( ! suffix || [suffix length] == 0 )
-		return path;
-	
-	NSString *name = [path lastPathComponent];
-	
-	// check if path already has the suffix.
-	if( [name rangeOfString:suffix].location != NSNotFound ) {
-		
-		NSString *newLastname = [name stringByReplacingOccurrencesOfString:suffix withString:@""];
-		
-		NSString *pathWithoutLastname = [path stringByDeletingLastPathComponent];
-		return [pathWithoutLastname stringByAppendingPathComponent:newLastname];
-	}
-	
-	// suffix was not removed
-	return path;
-}
-#endif
 
 -(void) setupConfigWithFilename:(NSString *)filename {
 	// we pass the filename that we're given into the shared sprite manager - this way, it deals with loading the *real* filename, while further cache loads are by the initial.  may cause duplicate data, but should improve config loading performance.

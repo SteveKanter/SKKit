@@ -28,7 +28,7 @@ BOOL SKFileExistsInTexturePack(NSString *file, NSString *pack) {
 	}
 	return NO;
 }
-NSString *SKFileFromTexturePack(NSString *file, NSString *pack) {
+NSString *SKFileFromTexturePackDefault(NSString *file, NSString *pack, BOOL *resultedInDefault) {
 	
 	// Load the specified file from the specified texture pack, if possible, otherwise default to loading it from the Default texture pack
 	// Passing in nil for the pack will default in using the default texture pack.
@@ -41,10 +41,16 @@ NSString *SKFileFromTexturePack(NSString *file, NSString *pack) {
 			testPath = RESOURCEFILE(path);
 		}
 		if([fileManager fileExistsAtPath:testPath]) {
+			resultedInDefault = NO;
 			return path;
 		}
 	}
+	*resultedInDefault = YES;
 	return [NSString stringWithFormat:@"TexturePacks/Default/%@",file];
+}
+NSString *SKFileFromTexturePack(NSString *file, NSString *pack) {
+	BOOL resultedInDefault;
+	return SKFileFromTexturePackDefault(file, pack, &resultedInDefault);
 }
 
 
