@@ -38,6 +38,23 @@ NS_INLINE SKEllipse SKEllipseMake(CGPoint location, CGSize radius) {
 	return ellipse;
 }
 
+typedef struct _SKCornerRadiuses {
+	float topRight;
+	float topLeft;
+	float bottomLeft;
+	float bottomRight;
+} SKCornerRadiuses;
+
+
+NS_INLINE SKCornerRadiuses SKCornerRadiusesMake(float topRight, float topLeft, float bottomLeft, float bottomRight) {
+	SKCornerRadiuses radiuses;
+	radiuses.topLeft = topLeft;
+	radiuses.topRight = topRight;
+	radiuses.bottomLeft = bottomLeft;
+	radiuses.bottomRight = bottomRight;
+	return radiuses;
+}
+
 #define __KEY_INTO_STRING_INTERNAL(_string_) #_string_
 #define __KEY_INTO_STRING(_string_) __KEY_INTO_STRING_INTERNAL(_string_)
 
@@ -133,7 +150,8 @@ NS_INLINE NSString *_osxVersion() {
  @returns distance */
 +(float) distanceFrom:(CGPoint)point toLineSegmentStart:(CGPoint)start andEnd:(CGPoint)end;
 
-
+// radiuses is an array of NSNumber ints, starting from top-left going counter-clockwise.
++(CGPoint *) roundedRectangleWithSize:(CGSize)size cornerRadiuses:(SKCornerRadiuses)radiuses count:(int *)count;
 
 // no sense rewriting the wheel / lazy / time crunched. www.musicalgeometry.com/?p=1197
 +(NSArray *) splitString:(NSString*)str maxCharacters:(NSInteger)maxLength;
