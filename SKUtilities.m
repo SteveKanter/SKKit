@@ -155,7 +155,7 @@ SK_MAKE_SINGLETON(SKUtilities, sharedUtilities)
 	
 #define CLOSE_ENOUGH(_p1_, _p2_) (fabs(_p1_.x - _p2_.x) < 0.001f && fabs(_p1_.y - _p2_.y) < 0.001f)
 	
-#define ADD_POINT(_point_) if(!isnan(_point_.x) && !isnan(_point_.y) && !CLOSE_ENOUGH(previousPoint, _point_)) { NSLog(@"%i: %@", currentOffset+1, NSStringFromCGPoint(_point_)); points[currentOffset++] = previousPoint = _point_; }
+#define ADD_POINT(_point_) if(!isnan(_point_.x) && !isnan(_point_.y) && !CLOSE_ENOUGH(previousPoint, _point_)) { points[currentOffset++] = previousPoint = _point_; }
 	
 #define ADD_CORNERS(_initials_) \
 	for(int i = 0; i < _initials_ ## cornerCount; i++) {\
