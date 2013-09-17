@@ -138,5 +138,6 @@ typedef void(^SKNotificationCenterBlock)(NSNotification *notification);
 #import "SKUtilities.h"
 #import "SKGameCenterManager.h"
 #import "SKServerSignature.h"
+#import "SKCCLabelBMFont.h"
 
 #endif
