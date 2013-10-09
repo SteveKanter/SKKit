@@ -169,7 +169,7 @@ SK_MAKE_SINGLETON(SKSpriteManager, sharedSpriteManager)
 
 @implementation SKCCSprite {
 //#if IS_iOS
-	__strong NSMutableArray *observers_;
+	__strong CCArray *_observers;
 //#endif
 	
 	__strong NSString *_spritesheetPrefix;
@@ -206,9 +206,7 @@ SK_MAKE_SINGLETON(SKSpriteManager, sharedSpriteManager)
 		_config = nil;
 		_lastUsedAnimation = nil;
 		_spritesheetPrefix = nil;
-//#if IS_iOS
-		observers_ = [NSMutableArray arrayWithCapacity:3];
-//#endif
+		_observers = [CCArray arrayWithCapacity:1];
 		_runningAnimations = [[NSMutableDictionary alloc] initWithCapacity:2];
 		_runningAnimationsBasedOnSpeed = [NSMutableArray arrayWithCapacity:2];
 		
@@ -764,10 +762,9 @@ SK_MAKE_SINGLETON(SKSpriteManager, sharedSpriteManager)
 	
 }
 
-//#if IS_iOS
 -(void) addObserverForName:(NSString *)name object:(id)object queue:(NSOperationQueue *)queue usingBlock:(void (^)(NSNotification *notification))block {
 	id observer = [(NSNotificationCenter *)[NSNotificationCenter defaultCenter] addObserverForName:name object:object queue:queue usingBlock:block];
-	[observers_ addObject:observer];
+	[_observers addObject:observer];
 }
 
 -(SKCCSprite *) weak {
@@ -775,12 +772,11 @@ SK_MAKE_SINGLETON(SKSpriteManager, sharedSpriteManager)
 	return weakSelf;
 }
 -(void) removeObserver {
-	for(id observer in observers_) {
+	for(id observer in _observers) {
 		[[NSNotificationCenter defaultCenter] removeObserver:observer];
 	}
-	[observers_ removeAllObjects];
+	[_observers removeAllObjects];
 }
-//#endif
 
 
 -(void) removeAsyncLoader:(SKSpriteAnimationAsyncLoader *)loader {
