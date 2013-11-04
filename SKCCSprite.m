@@ -13,6 +13,7 @@
 
 NSString *const SKCCSpriteAnimationSpeedNotification = @"SKCCSpriteAnimationSpeedNotification";
 static float SKCCSpriteTouchScaleFactor = 1.0f;
+static CGPoint SKCCSpriteTouchOffsetFactor = {0.f, 0.f};
 
 @class SKSpriteAnimationAsyncLoader;
 @interface SKCCSprite (SKSpriteAnimationAsyncLoadAdditions)
@@ -286,6 +287,8 @@ SK_MAKE_SINGLETON(SKSpriteManager, sharedSpriteManager)
 #if IS_iOS
 	CGPoint position = [touch locationInView:[[CCDirector sharedDirector] view]];
 	position = [[CCDirector sharedDirector] convertToGL:position];
+	position.x -= SKCCSpriteTouchOffsetFactor.x;
+	position.y -= SKCCSpriteTouchOffsetFactor.y;
 	position.x *= 1.f / SKCCSpriteTouchScaleFactor;
 	position.y *= 1.f / SKCCSpriteTouchScaleFactor;
 	return position;
@@ -813,6 +816,12 @@ SK_MAKE_SINGLETON(SKSpriteManager, sharedSpriteManager)
 }
 +(float) touchScalingFactor {
 	return SKCCSpriteTouchScaleFactor;
+}
++(void) setTouchOffsetFactor:(CGPoint)factor {
+	SKCCSpriteTouchOffsetFactor = factor;
+}
++(CGPoint) touchOffsetFactor {
+	return SKCCSpriteTouchOffsetFactor;
 }
 
 @end
