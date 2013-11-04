@@ -189,6 +189,11 @@ typedef enum {
 
 -(NSArray *) allChildrenInNodeTreeIncludingSelf:(BOOL)includeSelf;
 
+// used when the game is being drawn at a different scale than 1.0 and touches need to follow suit
+// should be the same factor [ie 0.75 to be draw at 3/4 size]
++(void) setTouchScalingFactor:(float)factor;
++(float) touchScalingFactor;
+
 @end
 
 #endif

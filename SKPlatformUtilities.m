@@ -53,7 +53,7 @@ NSString *SKFileFromTexturePack(NSString *file, NSString *pack) {
 #if IS_iOS
 #import <UIKit/UIKit.h>
 #ifdef UI_USER_INTERFACE_IDIOM
-BOOL isIpad() {return [[SKUtilities sharedUtilities] isIpad];}
+BOOL isIpad() {return YES;}//[[SKUtilities sharedUtilities] isIpad];}
 #else
 BOOL isIpad() {return NO;}
 #endif
