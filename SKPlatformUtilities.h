@@ -38,6 +38,7 @@ NSString *SKFilename(NSString *f, NSString *e, NSString *s);
 
 BOOL SKFileExistsInTexturePack(NSString *file, NSString *pack);
 NSString *SKFileFromTexturePack(NSString *file, NSString *pack);
+NSString *SKFileFromTexturePackDefault(NSString *file, NSString *pack, BOOL *resultedInDefault);
 
 #define isIpadReturn(__ITEM__,__ELSE__) (isIpad() ? (__ITEM__) : (__ELSE__))
 #define isIpadReturnNumber(__ITEM__) isIpadReturn((__ITEM__),0)

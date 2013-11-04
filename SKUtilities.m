@@ -124,6 +124,80 @@ SK_MAKE_SINGLETON(SKUtilities, sharedUtilities)
 	return [self distanceBetween:point and:projection];
 }
 
++(CGPoint *) _pointsForSegmentOfCircleWithRadius:(float)radius startAngle:(int)startAngle count:(int *)count {
+	
+	int segments = 10; // always one more than is defined here
+	if(radius == 0.f) segments = 0;
+	
+	CGPoint *points = malloc(sizeof(CGPoint) * (segments + 1));
+	
+	for(int i = 0; i <= segments; i++) {
+		float radians = CC_DEGREES_TO_RADIANS((i * (90.f / segments)) + startAngle);
+		float x = radius * cosf(radians);
+		float y = radius * sinf(radians);
+		points[i] = CGPointMake(x, y);
+	}
+	
+	*count = segments + 1;
+	return points;
+}
+
++(CGPoint *) roundedRectangleWithSize:(CGSize)size cornerRadiuses:(SKCornerRadiuses)radiuses count:(int *)count {
+	
+#define LOAD_CORNERS(_initials_, _startAngle_, _radiusIndex_, _radius_) \
+	int _initials_ ## cornerCount = 0;\
+	float _initials_ ## radius = _radius_;\
+	CGPoint _initials_ ## center = CGPointMake((_radiusIndex_ == 1 || _radiusIndex_ == 2 ? _initials_ ## radius : size.width - _initials_ ## radius),\
+												_radiusIndex_ == 1 || _radiusIndex_ == 0 ? size.height - _initials_ ## radius : _initials_ ## radius);\
+	CGPoint *_initials_ ## points = [self _pointsForSegmentOfCircleWithRadius:_initials_ ## radius startAngle:_startAngle_ count:&_initials_ ## cornerCount];
+	
+#define FREE_CORNERS(_initials_) free(_initials_ ## points);
+	
+#define CLOSE_ENOUGH(_p1_, _p2_) (fabs(_p1_.x - _p2_.x) < 0.001f && fabs(_p1_.y - _p2_.y) < 0.001f)
+	
+#define ADD_POINT(_point_) if(!isnan(_point_.x) && !isnan(_point_.y) && !CLOSE_ENOUGH(previousPoint, _point_)) { points[currentOffset++] = previousPoint = _point_; }
+	
+#define ADD_CORNERS(_initials_) \
+	for(int i = 0; i < _initials_ ## cornerCount; i++) {\
+		 ADD_POINT(ccpAdd(_initials_ ## center, _initials_ ## points[i]));\
+	}
+	
+	
+	LOAD_CORNERS(TR, 0, 0, radiuses.topRight);
+	LOAD_CORNERS(TL, 90, 1, radiuses.topLeft);
+	LOAD_CORNERS(BL, 180, 2, radiuses.bottomLeft);
+	LOAD_CORNERS(BR, 270, 3, radiuses.bottomRight);
+	
+	*count = ((TRcornerCount + TLcornerCount + BLcornerCount + BRcornerCount) + 8);
+	CGPoint *points = malloc(sizeof(CGPoint) * *count);
+	int currentOffset = -1;
+	CGPoint previousPoint = CGPointMake(INT_MAX, INT_MAX);
+	
+	ADD_POINT(CGPointMake(0, size.height - TLradius));
+	ADD_POINT(CGPointMake(0, BLradius));
+	ADD_CORNERS(BL);
+	ADD_POINT(CGPointMake(BLradius, 0));
+	ADD_POINT(CGPointMake(size.width - BRradius, 0));
+	ADD_CORNERS(BR);
+	ADD_POINT(CGPointMake(size.width, BRradius));
+	ADD_POINT(CGPointMake(size.width, size.height - TRradius));
+	ADD_CORNERS(TR);
+	ADD_POINT(CGPointMake(size.width - TRradius, size.height));
+	ADD_POINT(CGPointMake(TLradius, size.height));
+	ADD_CORNERS(TL);
+	
+	
+	FREE_CORNERS(TR);
+	FREE_CORNERS(TL);
+	FREE_CORNERS(BL);
+	FREE_CORNERS(BR);
+	
+	*count = currentOffset;
+	
+	return points;
+	
+}
+
 // no sense rewriting the wheel / lazy / time crunched. www.musicalgeometry.com/?p=1197
 +(NSArray *) splitString:(NSString*)str maxCharacters:(NSInteger)maxLength {
     NSMutableArray *tempArray = [NSMutableArray arrayWithCapacity:1];

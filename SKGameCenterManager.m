@@ -41,8 +41,10 @@ SK_MAKE_SINGLETON(SKGameCenterManager, sharedGameCenterManager)
 -(void) authenticateWithBlock:(SKKitBlock)block {
 	if(![self isAuthenticated]) {
 //		NSLog(@"%i",[self isAuthenticated]);
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 		[self.localPlayer authenticateWithCompletionHandler:^(NSError *error) {
-//			NSLog(@"%i %@ %@",[self isAuthenticated], [self.localPlayer alias], error);
+#pragma clang diagnostic pop
 			if(!error) {
 				if(block) {
 					block();

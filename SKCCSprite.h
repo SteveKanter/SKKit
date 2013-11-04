@@ -187,6 +187,10 @@ typedef enum {
 
 -(NSString *) animationNameForKey:(int)animationKey fromGroupWithKey:(int)animationGroupKey;
 
+/** If valid value is NO, don't rely on the return value from this method - this happens when the animation repeats forever, for example. */
+-(float) animationDurationForAnimation:(NSString *)name validValue:(BOOL *)valid;
+
+
 -(NSArray *) allChildrenInNodeTreeIncludingSelf:(BOOL)includeSelf;
 
 // used when the game is being drawn at a different scale than 1.0 and touches need to follow suit
@@ -194,6 +198,13 @@ typedef enum {
 +(void) setTouchScalingFactor:(float)factor;
 +(float) touchScalingFactor;
 
+@end
+
+/** A class used only by SKCCSprite and its subclasses for maintaining a list of cached config files. */
+@interface SKSpriteManager : SKSingleton
+
++(SKSpriteManager *) sharedSpriteManager;
+-(NSDictionary *) getConfigByFilename:(NSString *)filename;
 @end
 
 #endif

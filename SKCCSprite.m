@@ -52,76 +52,17 @@ static float SKCCSpriteTouchScaleFactor = 1.0f;
 @end
 
 
-/** A private class to SKCCSprite for maintaining a list of cached config files. */
-@interface SKSpriteManager : SKSingleton {
-	NSMutableDictionary *configs_;
+@implementation SKSpriteManager {
+	__strong NSMutableDictionary *_configs;
 }
-+(SKSpriteManager *) sharedSpriteManager;
--(NSDictionary *) getConfigByFilename:(NSString *)filename;
-@end
-
-@implementation SKSpriteManager
 SK_MAKE_SINGLETON(SKSpriteManager, sharedSpriteManager)
 -(id) init {
 	if( (self = [super init]) ) {
-		configs_ = [[NSMutableDictionary alloc] initWithCapacity:10];
+		_configs = [[NSMutableDictionary alloc] initWithCapacity:10];
 	}
 	return self;
 }
--(NSDictionary *) getConfigByFilename:(NSString *)filename {
-	NSDictionary *config = configs_[filename];
-	if(!config) {
-		NSString *file = filename;
-		if(![filename isAbsolutePath]) {
-			file = [[CCFileUtils sharedFileUtils] fullPathForFilename:filename];
-		}
-		config = [NSDictionary dictionaryWithContentsOfFile:file];
-		if(config) {
-			configs_[filename] = config;
-		}
-	}
-	return config;
-}
--(void) dealloc {
-	configs_ = nil;
-#if !__has_feature(objc_arc)
-	[super dealloc];
-#endif
-}
 
-@end
-
-
-@interface SKCCSprite ()
-@property(nonatomic, readwrite, strong) NSString *lastUsedAnimation;
-@end
-
-@implementation SKCCSprite {
-//#if IS_iOS
-	__strong NSMutableArray *observers_;
-//#endif
-	
-	__strong NSString *_spritesheetPrefix;
-	__strong NSMutableArray *_loaders;
-	
-	NSString *_lastUsedAnimation;
-}
-
-@synthesize inputEnabled=_inputEnabled;
-
--(void) setupTextureFilenameWithFilename:(NSString *)filename {
-	self.textureFilename = filename;
-#if CC_IS_RETINA_DISPLAY_SUPPORTED
-#error fix this - it's old and doesn't support iPad retina.  should resolve that.
-	if( CC_CONTENT_SCALE_FACTOR() == 2 ) {
-		NSString *filenameWithoutExtension = [ccRemoveHDSuffixFromFile(filename) stringByDeletingPathExtension];
-		NSString *extension = [filename pathExtension];
-		NSString *retinaName = [filenameWithoutExtension stringByAppendingString:CC_RETINA_DISPLAY_FILENAME_SUFFIX];
-		retinaName = [retinaName stringByAppendingPathExtension:extension];
-		self.textureFilename = retinaName;
-	}
-#endif
-}
 
 #if IS_Mac
 -(NSString *) removeSuffix:(NSString*)suffix fromPath:(NSString*)path {
@@ -145,7 +86,7 @@ SK_MAKE_SINGLETON(SKSpriteManager, sharedSpriteManager)
 }
 #endif
 
--(void) setupConfigWithFilename:(NSString *)filename {
+-(NSString *) realFilenameForFilename:(NSString *)filename {
 	
 	// see if the file with whatever suffix is already on it exists.
 	
@@ -195,7 +136,69 @@ SK_MAKE_SINGLETON(SKSpriteManager, sharedSpriteManager)
 		found = YES;
 		// default to NO extension.
 	}
-	_config = [[SKSpriteManager sharedSpriteManager] getConfigByFilename:finalFilename];
+	
+	return finalFilename;
+}
+
+-(NSDictionary *) getConfigByFilename:(NSString *)filename {
+	NSDictionary *config = _configs[filename];
+	if(!config) {
+		NSString *file = [self realFilenameForFilename:filename];
+		if(![file isAbsolutePath]) {
+			file = [[CCFileUtils sharedFileUtils] fullPathForFilename:file];
+		}
+		config = [NSDictionary dictionaryWithContentsOfFile:file];
+		if(config) {
+			_configs[filename] = config;
+		}
+	}
+	return config;
+}
+-(void) dealloc {
+	_configs = nil;
+#if !__has_feature(objc_arc)
+	[super dealloc];
+#endif
+}
+
+@end
+
+
+@interface SKCCSprite ()
+@property(nonatomic, readwrite, strong) NSString *lastUsedAnimation;
+@end
+
+@implementation SKCCSprite {
+//#if IS_iOS
+	__strong CCArray *_observers;
+//#endif
+	
+	__strong NSString *_spritesheetPrefix;
+	__strong NSMutableArray *_loaders;
+	
+	NSString *_lastUsedAnimation;
+}
+
+@synthesize inputEnabled=_inputEnabled;
+
+-(void) setupTextureFilenameWithFilename:(NSString *)filename {
+	self.textureFilename = filename;
+#if CC_IS_RETINA_DISPLAY_SUPPORTED
+#error fix this - it's old and doesn't support iPad retina.  should resolve that.
+	if( CC_CONTENT_SCALE_FACTOR() == 2 ) {
+		NSString *filenameWithoutExtension = [ccRemoveHDSuffixFromFile(filename) stringByDeletingPathExtension];
+		NSString *extension = [filename pathExtension];
+		NSString *retinaName = [filenameWithoutExtension stringByAppendingString:CC_RETINA_DISPLAY_FILENAME_SUFFIX];
+		retinaName = [retinaName stringByAppendingPathExtension:extension];
+		self.textureFilename = retinaName;
+	}
+#endif
+}
+
+
+-(void) setupConfigWithFilename:(NSString *)filename {
+	// we pass the filename that we're given into the shared sprite manager - this way, it deals with loading the *real* filename, while further cache loads are by the initial.  may cause duplicate data, but should improve config loading performance.
+	_config = [[SKSpriteManager sharedSpriteManager] getConfigByFilename:filename];
 }
 -(id) initWithTexture:(CCTexture2D *)texture rect:(CGRect)rect rotated:(BOOL)rotated {
 	if( (self = [super initWithTexture:texture rect:rect rotated:rotated]) ) {
@@ -204,9 +207,7 @@ SK_MAKE_SINGLETON(SKSpriteManager, sharedSpriteManager)
 		_config = nil;
 		_lastUsedAnimation = nil;
 		_spritesheetPrefix = nil;
-//#if IS_iOS
-		observers_ = [NSMutableArray arrayWithCapacity:3];
-//#endif
+		_observers = [CCArray arrayWithCapacity:1];
 		_runningAnimations = [[NSMutableDictionary alloc] initWithCapacity:2];
 		_runningAnimationsBasedOnSpeed = [NSMutableArray arrayWithCapacity:2];
 		
@@ -729,10 +730,45 @@ SK_MAKE_SINGLETON(SKSpriteManager, sharedSpriteManager)
 	[animate update:0]; //to prevent flicker
 }
 
-//#if IS_iOS
+-(float) animationDurationForAnimation:(NSString *)name validValue:(BOOL *)valid {
+	
+	NSDictionary *animationData = [self config][@"animations"][name];
+	if(!animationData) return 0.f;
+		
+	NSMutableArray *frameIndexes = animationData[@"frames"];
+	
+	if(animationData[@"frameRange"]) {
+		NSArray *array = [animationData[@"frameRange"] componentsSeparatedByString:@"-"];
+		if([array count] == 2) {
+			int startIndex = [array[0] intValue];
+			int endIndex = [array[1] intValue];
+			frameIndexes = [NSMutableArray arrayWithCapacity:endIndex - startIndex + 1];
+			for(int i = startIndex; i <= endIndex; i++) {
+				[frameIndexes addObject:@(i)];
+			}
+		} else if([array count] == 1) {
+			frameIndexes = [NSMutableArray arrayWithCapacity:1];
+			[frameIndexes addObject:@([array[0] intValue])];
+		}
+	}
+	
+	
+	int repeat = [animationData[@"repeat"] intValue];
+	float timePerFrame = [animationData[@"timePerFrame"] floatValue];
+	int numberOfFrames = [frameIndexes count];
+	if(repeat == -1) {
+		*valid = NO;
+		return MAXFLOAT;
+	}
+	
+	*valid = YES;
+	return (timePerFrame * numberOfFrames * (repeat + 1));
+	
+}
+
 -(void) addObserverForName:(NSString *)name object:(id)object queue:(NSOperationQueue *)queue usingBlock:(void (^)(NSNotification *notification))block {
 	id observer = [(NSNotificationCenter *)[NSNotificationCenter defaultCenter] addObserverForName:name object:object queue:queue usingBlock:block];
-	[observers_ addObject:observer];
+	[_observers addObject:observer];
 }
 
 -(SKCCSprite *) weak {
@@ -740,12 +776,11 @@ SK_MAKE_SINGLETON(SKSpriteManager, sharedSpriteManager)
 	return weakSelf;
 }
 -(void) removeObserver {
-	for(id observer in observers_) {
+	for(id observer in _observers) {
 		[[NSNotificationCenter defaultCenter] removeObserver:observer];
 	}
-	[observers_ removeAllObjects];
+	[_observers removeAllObjects];
 }
-//#endif
 
 
 -(void) removeAsyncLoader:(SKSpriteAnimationAsyncLoader *)loader {
