@@ -22,6 +22,9 @@ __strong static id ___shared ## class_name = nil; \
 	return ___shared ## class_name; \
 }\
 -(void) __killSingleton {\
+	if([self respondsToSelector:@selector(__beforeKillSingleton)]) {\
+		[self performSelector:@selector(__beforeKillSingleton)];\
+	}\
 	___shared ## class_name = nil;\
 }
 #endif
