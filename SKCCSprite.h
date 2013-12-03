@@ -193,6 +193,15 @@ typedef enum {
 
 -(NSArray *) allChildrenInNodeTreeIncludingSelf:(BOOL)includeSelf;
 
+// used when the game is being drawn at a different scale than 1.0 and touches need to follow suit
+// should be the same factor [ie 0.75 to be draw at 3/4 size]
++(void) setTouchScalingFactor:(float)factor;
++(float) touchScalingFactor;
+
+// used when the game is being drawn with borders
+// should be the same size as one border [that is, when there are equal size left/right borders, this is the size of one of them]
++(void) setTouchOffsetFactor:(CGPoint)factor;
++(CGPoint) touchOffsetFactor;
 
 @end
 

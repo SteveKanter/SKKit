@@ -12,6 +12,8 @@
 #import "SKKitDefines.h"
 
 NSString *const SKCCSpriteAnimationSpeedNotification = @"SKCCSpriteAnimationSpeedNotification";
+static float SKCCSpriteTouchScaleFactor = 1.0f;
+static CGPoint SKCCSpriteTouchOffsetFactor = {0.f, 0.f};
 
 @class SKSpriteAnimationAsyncLoader;
 @interface SKCCSprite (SKSpriteAnimationAsyncLoadAdditions)
@@ -284,7 +286,12 @@ SK_MAKE_SINGLETON(SKSpriteManager, sharedSpriteManager)
 -(CGPoint) inputPositionInOpenGLTerms:(id)touch {
 #if IS_iOS
 	CGPoint position = [touch locationInView:[[CCDirector sharedDirector] view]];
-	return [[CCDirector sharedDirector] convertToGL:position];
+	position = [[CCDirector sharedDirector] convertToGL:position];
+	position.x -= SKCCSpriteTouchOffsetFactor.x;
+	position.y -= SKCCSpriteTouchOffsetFactor.y;
+	position.x *= 1.f / SKCCSpriteTouchScaleFactor;
+	position.y *= 1.f / SKCCSpriteTouchScaleFactor;
+	return position;
 #elif IS_Mac
 	return NSPointToCGPoint([touch locationInWindow]);
 #endif
@@ -802,6 +809,19 @@ SK_MAKE_SINGLETON(SKSpriteManager, sharedSpriteManager)
 }
 -(NSArray *) allChildrenInNodeTreeIncludingSelf:(BOOL)includeSelf {
 	return [self _allChildrenInNodeTree:self includingSelf:includeSelf];
+}
+
++(void) setTouchScalingFactor:(float)factor {
+	SKCCSpriteTouchScaleFactor = factor;
+}
++(float) touchScalingFactor {
+	return SKCCSpriteTouchScaleFactor;
+}
++(void) setTouchOffsetFactor:(CGPoint)factor {
+	SKCCSpriteTouchOffsetFactor = factor;
+}
++(CGPoint) touchOffsetFactor {
+	return SKCCSpriteTouchOffsetFactor;
 }
 
 @end
