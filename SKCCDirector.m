@@ -8,7 +8,7 @@
 
 #import "SKCCDirector.h"
 
-#ifdef COCOS2D_VERSION
+#if COCOS2D_ENABLED
 
 @interface CCDirectorDisplayLink ()
 //-(void) threadMainLoop;

@@ -123,7 +123,7 @@ SK_MAKE_SINGLETON(SKUtilities, sharedUtilities)
 	CGPoint projection = CGPointMake(start.x + (t * (end.x - start.x)), start.y + (t * (end.y - start.y)));
 	return [self distanceBetween:point and:projection];
 }
-
+#define DEGREES_TO_RADIANS(__ANGLE__) ((__ANGLE__) * 0.01745329252f)
 +(CGPoint *) _pointsForSegmentOfCircleWithRadius:(float)radius startAngle:(int)startAngle count:(int *)count {
 	
 	int segments = 10; // always one more than is defined here
@@ -132,7 +132,7 @@ SK_MAKE_SINGLETON(SKUtilities, sharedUtilities)
 	CGPoint *points = malloc(sizeof(CGPoint) * (segments + 1));
 	
 	for(int i = 0; i <= segments; i++) {
-		float radians = CC_DEGREES_TO_RADIANS((i * (90.f / segments)) + startAngle);
+		float radians = DEGREES_TO_RADIANS((i * (90.f / segments)) + startAngle);
 		float x = radius * cosf(radians);
 		float y = radius * sinf(radians);
 		points[i] = CGPointMake(x, y);
@@ -157,9 +157,11 @@ SK_MAKE_SINGLETON(SKUtilities, sharedUtilities)
 	
 #define ADD_POINT(_point_) if(!isnan(_point_.x) && !isnan(_point_.y) && !CLOSE_ENOUGH(previousPoint, _point_)) { points[currentOffset++] = previousPoint = _point_; }
 	
+#define CGPointAdd(v1, v2) CGPointMake(v1.x + v2.x, v1.y + v2.y)
+	
 #define ADD_CORNERS(_initials_) \
 	for(int i = 0; i < _initials_ ## cornerCount; i++) {\
-		 ADD_POINT(ccpAdd(_initials_ ## center, _initials_ ## points[i]));\
+		 ADD_POINT(CGPointAdd(_initials_ ## center, _initials_ ## points[i]));\
 	}
 	
 	
@@ -232,7 +234,7 @@ SK_MAKE_SINGLETON(SKUtilities, sharedUtilities)
 
 @end
 
-#if COCOS2D_VERSION || FORCE_COCOCS2D
+#if COCOS2D_ENABLED
 
 @implementation CCNode (SKKitUtilitiesAdditions)
 -(CCAction *) runBlock:(SKKitBlock)block afterDelay:(NSTimeInterval)delay repeat:(int)repeatAmount {

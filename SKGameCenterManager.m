@@ -8,6 +8,8 @@
 
 #import "SKGameCenterManager.h"
 
+#if !defined(SKKitForceDisableGameCenter) || !SKKitForceDisableGameCenter
+
 NSString *const SKGameCenterManagerGameCenterConnectedNotification = @"SKGameCenterManagerGameCenterConnectedNotification";
 
 #if IS_iOS
@@ -185,3 +187,5 @@ MAKE_SINGLETON(SKGameCenterManager, sharedGameCenterManager)
 }
 #endif
 @end
+
+#endif

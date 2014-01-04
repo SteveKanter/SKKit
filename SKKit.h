@@ -23,6 +23,7 @@
 	#define IS_Mac 0
 #endif
 
+#define COCOS2D_ENABLED (COCOS2D_VERSION || FORCE_COCOCS2D)
 
 #if IS_iOS
 	#import <UIKit/UIKit.h>

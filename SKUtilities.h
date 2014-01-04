@@ -176,7 +176,7 @@ NS_INLINE NSString *_osxVersion() {
 -(void) performSelector:(SEL)aSelector afterDelay:(NSTimeInterval)delay;
 @end
 
-#if COCOS2D_VERSION || FORCE_COCOCS2D
+#if COCOS2D_ENABLED
 
 /** Random convenience methods to be added to all cocos2d nodes. */
 @interface CCNode (SKKitUtilitiesAdditions)

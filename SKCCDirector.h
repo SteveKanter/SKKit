@@ -6,7 +6,7 @@
 //
 //
 
-#ifdef COCOS2D_VERSION
+#if COCOS2D_ENABLED
 
 #import "CCDirectorIOS.h"
 

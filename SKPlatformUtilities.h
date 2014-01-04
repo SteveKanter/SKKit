@@ -61,7 +61,7 @@ NSString *SKFileFromTexturePackDefault(NSString *file, NSString *pack, BOOL *res
 @end
 #endif
 
-#if COCOS2D_VERSION || FORCE_COCOCS2D
+#if COCOS2D_ENABLED
 
 /** Additions to all CCNode objects */
 @interface CCNode (SKKitAdditions)

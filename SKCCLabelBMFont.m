@@ -6,7 +6,7 @@
 //  Copyright (c) 2013 Arctic Empire. All rights reserved.
 //
 
-#if COCOS2D_VERSION || FORCE_COCOCS2D
+#if COCOS2D_ENABLED
 
 #import "SKCCLabelBMFont.h"
 

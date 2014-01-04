@@ -8,6 +8,8 @@
 
 #import <Foundation/Foundation.h>
 
+#if !defined(SKKitForceDisableGameCenter) || !SKKitForceDisableGameCenter
+
 /// Posted when game center connects
 extern NSString *const SKGameCenterManagerGameCenterConnectedNotification;
 
@@ -54,3 +56,5 @@ extern NSString *const SKGameCenterManagerGameCenterConnectedNotification;
 @property (nonatomic, readwrite, copy) SKKitBlock holderBlock;
 #endif
 @end
+
+#endif
